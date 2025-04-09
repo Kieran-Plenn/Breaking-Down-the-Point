@@ -7,7 +7,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import time
 
 # Point this to your ChromeDriver path
 service = Service("C:\\chromedriver-win64\\chromedriver.exe")
@@ -18,28 +17,36 @@ driver = webdriver.Chrome(service=service, options=options)
 url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=NovakDjokovic"  # Replace with desired player
 driver.get(url)
 
-# Wait for a key table (like #titles-finals) to load
-try:
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "mcp-serve"))
-    )
-except:
-    print("Table didn't load in time")
+# Table IDs to check
+table_ids = [
+    "winners-errors", "serve-speed", "pbp-stats", "mcp-serve",
+    "mcp-return", "mcp-rally", "mcp-tactics"
+]
+counter = 0
+# Wait for page to load and try to find each table
+for table_id in table_ids:
+    try:
+        # Wait for the table to be present
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, table_id))
+        )
+        print(f"Table with ID '{table_id}' found!")
 
-# Now get the page source
-html = driver.page_source
-soup = BeautifulSoup(html, "html.parser")
+        # Get the page source after the table has loaded
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
 
-# Find all tables by ID or just all <table> tags
-tables = soup.find_all("table")
-print(f"Found {len(tables)} tables")
+        # Find and print the table if it exists
+        table = soup.find("table", id=table_id)
+        if table:
+            print(f"Contents of '{table_id}' table:")
+            print(table.prettify())
+            counter+=1
+        else:
+            print(f"'{table_id}' table found but no content.")
 
-# Optionally, grab a specific table
-titles_table = soup.find("table", id="mcp-serve")
-if titles_table:
-    print("MCP Serve Table Found")
-    print(titles_table.prettify())
-else:
-    print("No 'mcp-serve' table found")
+    except Exception as e:
+        print(f"Failed to find table with ID '{table_id}'. Error: {e}")
 
+# Quit the driver
 driver.quit()
