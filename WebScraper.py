@@ -42,7 +42,7 @@ for url in player_links:
     for table_id in table_ids:
         try:
             # Wait for the table to be present
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 0.5).until(
                 EC.presence_of_element_located((By.ID, table_id))
             )
             #print(f"Table with ID '{table_id}' found!")
