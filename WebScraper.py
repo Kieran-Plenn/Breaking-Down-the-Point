@@ -92,7 +92,7 @@ for url in player_urls:
     table_stats = {
         "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
         "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
-        "pdp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
+        "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
         "mcp-serve": {
             "text": [
                 "D Wide%",
@@ -108,10 +108,10 @@ for url in player_urls:
         "mcp-return": {
             "text": [
                 "RiP%",
-                "Rip W%",
-                "RDI"
+                "Rip W%"
             ],
             "title": [
+                "Return Depth Index (higher = deeper)",
                 "Slice/chip returns as a percentage of all in-play first-serve returns",
                 "Return winners (and induced forced errors) as a percentage of second-serve return points"
             ]
@@ -160,6 +160,9 @@ for url in player_urls:
             text_keys = config.get("text", []) if isinstance(config, dict) else config
             title_keys = config.get("title", []) if isinstance(config, dict) else []
 
+            print("TEXT KEYS: ", text_keys)
+            print("TITLE KEYS: ", title_keys)
+
             header = table.find("thead")
             headers = []
             desired_indices = []
@@ -171,9 +174,11 @@ for url in player_urls:
                 text_val = span.get_text(strip=True)
                 title_val = span.get("title", "").strip()
 
-                headers.append(text_val)
                 if text_val in text_keys or title_val in title_keys:
+                    headers.append(text_val)
+                    print("HEADERS: ", headers)
                     desired_indices.append(idx)
+                    print("IDX: ", idx)
 
             # Locate the career row and extract stats
             career_b = table.find("b", string=lambda s: s and "Career" in s)
@@ -249,6 +254,8 @@ for url in player_urls:
 
     # Increment the successful scrape counter
     scraped_count += 1
+
+    print("ALL_RESULTS: ", all_results)
 
     # If we've reached the desired number of scrapes, then stop the loop
     if scraped_count >= desired_scrapes:
