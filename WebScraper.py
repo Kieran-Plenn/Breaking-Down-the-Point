@@ -5,6 +5,7 @@ import os
 import csv
 import requests
 import re
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -30,7 +31,7 @@ else:
     scraped_urls = set()
 
 # Now we scrape each page for our desired stats
-for url in player_urls[:1]:
+for url in player_urls[:50]:
     if url in scraped_urls:
         continue
 
@@ -38,7 +39,13 @@ for url in player_urls[:1]:
     initial_response = requests.get(url)
     initial_soup = BeautifulSoup(initial_response.content, "html.parser")
     # Extract the JavaScript content containing player info (adjust based on actual structure)
-    script_content = initial_soup.find('script', text=re.compile('var fullname =')).string
+    time.sleep(5)
+    if initial_response.status_code == 429:
+        print("Rate limit reached. Waiting before retrying...")
+    else:
+        print("Exit code: ", initial_response.status_code)
+
+    script_content = initial_soup.find('script', string=re.compile('var fullname =')).string
 
     # Use regular expressions to extract player info
     player_info = {}
@@ -69,7 +76,7 @@ for url in player_urls[:1]:
 
         # Write the player data
         writer.writerow(player_info)
-    
+    """
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
     options = webdriver.ChromeOptions()
@@ -99,7 +106,8 @@ for url in player_urls[:1]:
             # Find and print the table if it exists
             table = soup.find("table", id=table_id)
             if table:
-                print(f"Contents of '{table_id}' table:")
+                print
+                #print(f"Contents of '{table_id}' table:")
                 #print(table.prettify())
             else:
                 print(f"'{table_id}' table found but no content.")
@@ -109,7 +117,7 @@ for url in player_urls[:1]:
 
     # Quit the driver
     driver.quit()
-
+"""
     # Add successfully scraped player page to checkpoint list
     with open(checkpoint_file, "a") as f:
         f.write(url + "\n")
