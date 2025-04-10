@@ -1,6 +1,8 @@
 # Breaking Down the Point
 # Author: Kieran Plenn
 
+import os
+import csv
 import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -18,11 +20,18 @@ player_list_soup = BeautifulSoup(player_list_response.content, 'html.parser')
 links = player_list_soup.find_all('a', href=True)
 player_links = [link['href'] for link in links if '.cgi?p=' in link['href']]
 
-num_players = len(player_links)
-counter = 0
+# Track completed URLs
+checkpoint_file = "scraped_players.txt"
+if os.path.exists(checkpoint_file):
+    with open(checkpoint_file, "r") as f:
+        scraped_urls = set(line.strip() for line in f)
+else:
+    scraped_urls = set()
 
 # Now we scrape each page for our desired stats
-for url in player_links[:10]:
+for url in player_links[:1]:
+    if url in scraped_urls:
+        continue
 
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
@@ -30,7 +39,6 @@ for url in player_links[:10]:
     options.add_argument("--headless")  # Optional: Run in headless mode
     driver = webdriver.Chrome(service=service, options=options)
 
-    #url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=NovakDjokovic"  # Replace with desired player
     driver.get(url)
 
     # Table IDs to check
@@ -38,6 +46,7 @@ for url in player_links[:10]:
         "winners-errors", "serve-speed", "pbp-stats", "mcp-serve",
         "mcp-return", "mcp-rally", "mcp-tactics"
     ]
+
     # Wait for page to load and try to find each table
     for table_id in table_ids:
         try:
@@ -45,7 +54,6 @@ for url in player_links[:10]:
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.ID, table_id))
             )
-            #print(f"Table with ID '{table_id}' found!")
 
             # Get the page source after the table has loaded
             html = driver.page_source
@@ -54,9 +62,8 @@ for url in player_links[:10]:
             # Find and print the table if it exists
             table = soup.find("table", id=table_id)
             if table:
-                #print(f"Contents of '{table_id}' table:")
+                print(f"Contents of '{table_id}' table:")
                 #print(table.prettify())
-                counter+=1
             else:
                 print(f"'{table_id}' table found but no content.")
 
@@ -65,5 +72,7 @@ for url in player_links[:10]:
 
     # Quit the driver
     driver.quit()
-print("Total Tables: ", counter)
-print("Does it math? ", num_players*7)
+
+    # Add successfully scraped player page to checkpoint list
+    with open(checkpoint_file, "a") as f:
+        f.write(url + "\n")
