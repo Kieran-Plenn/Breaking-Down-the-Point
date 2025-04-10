@@ -22,7 +22,7 @@ num_players = len(player_links)
 counter = 0
 
 # Now we scrape each page for our desired stats
-for url in player_links:
+for url in player_links[:10]:
 
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
