@@ -33,6 +33,11 @@ for url in player_urls[:1]:
     if url in scraped_urls:
         continue
 
+    # Get easy initial stats
+    initial_response = requests.get(url)
+    initial_soup = BeautifulSoup(initial_response, "html.parser")
+    print(initial_soup)
+    
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
     options = webdriver.ChromeOptions()
