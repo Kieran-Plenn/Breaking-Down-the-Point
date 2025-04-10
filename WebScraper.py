@@ -12,13 +12,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
 # First let's scrape the page featuring hyperlinks to players' pages
-player_list_url = "https://tennisabstract.com/reports/atpRankings.html"
-player_list_response = requests.get(player_list_url)
+player_list_link = "https://tennisabstract.com/reports/atpRankings.html"
+player_list_response = requests.get(player_list_link)
 player_list_soup = BeautifulSoup(player_list_response.content, 'html.parser')
 
 # We'll isolate just the URLs for player pages from the scraped "soup" 
-links = player_list_soup.find_all('a', href=True)
-player_links = [link['href'] for link in links if '.cgi?p=' in link['href']]
+urls = player_list_soup.find_all('a', href=True)
+player_urls = [url['href'] for url in urls if '.cgi?p=' in url['href']]
 
 # Track completed URLs
 checkpoint_file = "scraped_players.txt"
@@ -29,7 +29,7 @@ else:
     scraped_urls = set()
 
 # Now we scrape each page for our desired stats
-for url in player_links[:1]:
+for url in player_urls[:1]:
     if url in scraped_urls:
         continue
 
