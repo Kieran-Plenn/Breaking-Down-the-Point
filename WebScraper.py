@@ -4,6 +4,7 @@
 import os
 import csv
 import requests
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -35,8 +36,39 @@ for url in player_urls[:1]:
 
     # Get easy initial stats
     initial_response = requests.get(url)
-    initial_soup = BeautifulSoup(initial_response, "html.parser")
-    print(initial_soup)
+    initial_soup = BeautifulSoup(initial_response.content, "html.parser")
+    # Extract the JavaScript content containing player info (adjust based on actual structure)
+    script_content = initial_soup.find('script', text=re.compile('var fullname =')).string
+
+    # Use regular expressions to extract player info
+    player_info = {}
+
+    # Regex to capture the relevant information
+    player_info['name'] = re.search(r"var fullname = '([^']+)'", script_content).group(1)
+    player_info['current_rank'] = re.search(r"var currentrank = (\d+)", script_content).group(1)
+    player_info['peak_rank'] = re.search(r"var peakrank = (\d+)", script_content).group(1)
+
+    # Write the player info to a CSV file
+    csv_filename = 'player_data.csv'
+
+    # Check if the file exists to decide whether to write the header or not
+    file_exists = False
+    try:
+        with open(csv_filename, 'r'):
+            file_exists = True
+    except FileNotFoundError:
+        file_exists = False
+
+    # Open the file in append mode
+    with open(csv_filename, mode='a', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=player_info.keys())
+        
+        # Write the header if the file doesn't exist
+        if not file_exists:
+            writer.writeheader()
+
+        # Write the player data
+        writer.writerow(player_info)
     
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
