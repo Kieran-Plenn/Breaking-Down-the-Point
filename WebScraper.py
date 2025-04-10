@@ -44,7 +44,7 @@ else:
     scraped_urls = set()
 
 # Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 10
+desired_scrapes = 1
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -58,6 +58,8 @@ for url in player_urls:
     # If current URL is in already scraped URLs, then continue
     if url in scraped_urls:
         continue
+
+    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
@@ -77,29 +79,7 @@ for url in player_urls:
     player_info['name'] = re.search(r"var fullname = '([^']+)'", script_content).group(1)
     player_info['current_rank'] = re.search(r"var currentrank = (\d+)", script_content).group(1)
     player_info['peak_rank'] = re.search(r"var peakrank = (\d+)", script_content).group(1)
-
-    # Write the player info to a CSV file
-    csv_filename = 'player_data.csv'
-
-    # Check if the file exists to decide whether to write the header or not
-    file_exists = False
-    try:
-        with open(csv_filename, 'r'):
-            file_exists = True
-    except FileNotFoundError:
-        file_exists = False
-
-    # Open the file in append mode
-    with open(csv_filename, mode='a', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=player_info.keys())
-        
-        # Write the header if the file doesn't exist
-        if not file_exists:
-            writer.writeheader()
-
-        # Write the player data
-        writer.writerow(player_info)
-    """
+    
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
     options = webdriver.ChromeOptions()
@@ -108,14 +88,58 @@ for url in player_urls:
 
     driver.get(url)
 
-    # Table IDs to check
-    table_ids = [
-        "winners-errors", "serve-speed", "pbp-stats", "mcp-serve",
-        "mcp-return", "mcp-rally", "mcp-tactics"
-    ]
+    # Define tables and stats to scrape
+    table_stats = {
+        "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
+        "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
+        "pdp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
+        "mcp-serve": {
+            "text": [
+                "D Wide%",
+                "A Wide%"
+            ],
+            "title": [
+                "Percent of first serve points won on either the serve or second shot",
+                "Percentage of first serve points won when return was put in play",
+                "Percent of second serve points won on either the serve or second shot",
+                "Percentage of second serve points won when return was put in play"
+            ]
+        },
+        "mcp-return": {
+            "text": [
+                "RiP%",
+                "Rip W%",
+                "RDI"
+            ],
+            "title": [
+                "Slice/chip returns as a percentage of all in-play first-serve returns",
+                "Return winners (and induced forced errors) as a percentage of second-serve return points"
+            ]
+        },
+        "mcp-rally": ["RallyLen", "1-3 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
+        "mcp-tactics": {
+            "text": [
+                "SnV Freq", 
+                "SnV W%", 
+                "Net Freq", 
+                "Net W%", 
+                "FH: Wnr%", 
+                "BH: Wnr%", 
+                "Drop: Freq"
+            ],
+            "title": [
+                "Winners (and induced forced errors) per (topspin) down-the-line forehand",
+                "Winners (and induced forced errors) per (topspin) inside-out forehand",
+                "Winners (and induced forced errors) per (topspin) down-the-line backhand",
+                "Dropshots (from the baseline) per groundstroke"
+            ]
+        }
+    }
 
-    # Wait for page to load and try to find each table
-    for table_id in table_ids:
+    all_results = {}
+
+    # Loop through tables and columns within tables
+    for table_id, config in table_stats.items():
         try:
             # Wait for the table to be present
             WebDriverWait(driver, 10).until(
@@ -126,21 +150,99 @@ for url in player_urls:
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
 
-            # Find and print the table if it exists
-            table = soup.find("table", id=table_id)
-            if table:
-                print
-                #print(f"Contents of '{table_id}' table:")
-                #print(table.prettify())
-            else:
-                print(f"'{table_id}' table found but no content.")
+            # Find the table by ID
+            table = soup.find("table", {"id": table_id})
+            if not table:
+                print(f"Table {table_id} not found.")
+                continue
+
+            # Handle your table extraction logic (the rest of the code I shared earlier)
+            text_keys = config.get("text", []) if isinstance(config, dict) else config
+            title_keys = config.get("title", []) if isinstance(config, dict) else []
+
+            header = table.find("thead")
+            headers = []
+            desired_indices = []
+            for idx, th in enumerate(header.find_all("th")):
+                span = th.find("span")
+                if not span:
+                    continue
+
+                text_val = span.get_text(strip=True)
+                title_val = span.get("title", "").strip()
+
+                headers.append(text_val)
+                if text_val in text_keys or title_val in title_keys:
+                    desired_indices.append(idx)
+
+            # Locate the career row and extract stats
+            career_b = table.find("b", string=lambda s: s and "Career" in s)
+            career_row = career_b.find_parent("tr") if career_b else None
+
+            if not career_row:
+                print(f"Career row not found in {table_id}.")
+                continue
+
+            cols = career_row.find_all("td")
+
+            # Extract the desired statistics from columns
+            stat_dict = {}
+            for i in desired_indices:
+                if i < len(cols):
+                    stat_dict[headers[i]] = cols[i].get_text(strip=True)
+                else:
+                    stat_dict[headers[i]] = "N/A"
+
+            all_results[table_id] = stat_dict
 
         except Exception as e:
-            print(f"Failed to find table with ID '{table_id}'. Error: {e}")
+            print(f"Error while scraping table {table_id}: {e}")
 
     # Quit the driver
     driver.quit()
-"""
+
+    # Flatten the all_results data into a list of rows
+    flattened_data = []
+
+    # Define headers (ensure these match your previous header structure)
+    headers = ["player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
+
+    # Iterate through all_results and create rows for each table's stats
+    for table_id, stats in all_results.items():
+        for stat_name, stat_value in stats.items():
+            # Create a row with the player stats (flattened)
+            row = {"player_name": player_info['name'], 
+                "current_rank": player_info['current_rank'],
+                "peak_rank": player_info['peak_rank'],
+                f"{table_id}_{stat_name}": stat_value}  # Use table_id_stat_name as the key
+            
+            flattened_data.append(row)
+
+            # Add to headers (if it's not already there)
+            for key in row.keys():
+                if key not in headers:
+                    headers.append(key)
+
+    # Define CSV file path
+    csv_filename = 'player_data.csv'
+
+    # Check if the file exists to decide whether to write the header or not
+    file_exists = os.path.exists(csv_filename)
+
+    # Open the CSV file and append the data
+    with open(csv_filename, mode='a', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=headers)
+        
+        # Write the header if the file doesn't exist
+        if not file_exists:
+            writer.writeheader()
+
+        # Write all the flattened data to the file (each player as one row)
+        for row in flattened_data:
+            writer.writerow(row)
+
+    print("Data appended successfully to player_data.csv.")
+
     # Add successfully scraped player page to checkpoint list
     with open(checkpoint_file, "a") as f:
         f.write(url + "\n")
