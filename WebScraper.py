@@ -2,12 +2,15 @@
 # Author: Kieran Plenn
 
 import requests
+import threading
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import concurrent.futures
 
 # First let's scrape the page featuring hyperlinks to players' pages
 player_list_url = "https://tennisabstract.com/reports/atpRankings.html"
@@ -19,18 +22,20 @@ links = player_list_soup.find_all('a', href=True)
 player_links = [link['href'] for link in links if '.cgi?p=' in link['href']]
 
 num_players = len(player_links)
-counter = 0
+table_count_lock = threading.Lock()
+table_count = 0
 
-# Now we scrape each page for our desired stats
-for url in player_links:
-
+# Function for scraping player page
+def scrape_player_page(url):
+    global table_count
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Optional: Run in headless mode
+    options.add_argument("--headless=new")  # Optional: Run in headless mode
     driver = webdriver.Chrome(service=service, options=options)
 
     #url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=NovakDjokovic"  # Replace with desired player
+    print("Name: ", url)
     driver.get(url)
 
     # Table IDs to check
@@ -42,7 +47,7 @@ for url in player_links:
     for table_id in table_ids:
         try:
             # Wait for the table to be present
-            WebDriverWait(driver, 0.5).until(
+            WebDriverWait(driver, 2).until(
                 EC.presence_of_element_located((By.ID, table_id))
             )
             #print(f"Table with ID '{table_id}' found!")
@@ -56,14 +61,19 @@ for url in player_links:
             if table:
                 #print(f"Contents of '{table_id}' table:")
                 #print(table.prettify())
-                counter+=1
+                with table_count_lock:
+                    table_count+=1
             else:
                 print(f"'{table_id}' table found but no content.")
 
         except Exception as e:
-            print(f"Failed to find table with ID '{table_id}'. Error: {e}")
+            print(f"Failed to find table with ID '{table_id}' in ", url,". Error: {e}")
 
     # Quit the driver
     driver.quit()
-print("Total Tables: ", counter)
+
+# Now we scrape each page for our desired stats
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+    executor.map(scrape_player_page, player_links[:100])
+print("Table Count: ", table_count)
 print("Does it math? ", num_players*7)
