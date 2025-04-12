@@ -6,12 +6,23 @@ import csv
 import requests
 import re
 import time
+import unicodedata
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+
+# Function to help match span text and title with keys
+def clean(s):
+    if not isinstance(s, str):
+        return ''
+    s = unicodedata.normalize("NFKD", s)  # Normalize unicode characters
+    s = s.replace('\xa0', ' ')            # Replace non-breaking spaces
+    s = s.replace('\n', ' ')              # Replace line breaks
+    s = re.sub(r'\s+', ' ', s)            # Collapse multiple spaces
+    return s.strip()
 
 # Tracking elapsed time of initial player list scrape
 list_scrape_start_time = time.time()
@@ -88,6 +99,9 @@ for url in player_urls:
 
     driver.get(url)
 
+    # Store stats with stat names
+    all_results = {}
+
     # Define tables and stats to scrape
     table_stats = {
         "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
@@ -107,16 +121,17 @@ for url in player_urls:
         },
         "mcp-return": {
             "text": [
-                "RiP%",
-                "Rip W%"
+                "RiP%"
             ],
             "title": [
+                "Percent of points won when return was put in play",
                 "Return Depth Index (higher = deeper)",
                 "Slice/chip returns as a percentage of all in-play first-serve returns",
                 "Return winners (and induced forced errors) as a percentage of second-serve return points"
             ]
         },
         "mcp-rally": ["RallyLen", "1-3 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
+        
         "mcp-tactics": {
             "text": [
                 "SnV Freq", 
@@ -131,12 +146,29 @@ for url in player_urls:
                 "Winners (and induced forced errors) per (topspin) down-the-line forehand",
                 "Winners (and induced forced errors) per (topspin) inside-out forehand",
                 "Winners (and induced forced errors) per (topspin) down-the-line backhand",
-                "Dropshots (from the baseline) per groundstroke"
+                "Winners (and induced forced errors) per (baseline) dropshot"
             ]
         }
     }
 
-    all_results = {}
+    # Generate a consistent list of all possible stat headers
+    lookup_map = {
+        "player_name": "player_name",
+        "current_rank": "current_rank",
+        "peak_rank": "peak_rank"
+    }
+
+    for table_id, config in table_stats.items():
+        text_keys = config.get("text", []) if isinstance(config, dict) else config
+        title_keys = config.get("title", []) if isinstance(config, dict) else []
+
+        for key in text_keys:
+            header_key = f"{table_id}_{key} ()"
+            lookup_map[key] = header_key
+
+        for key in title_keys:
+            header_key = f"{table_id}_ ({key})"
+            lookup_map[key] = header_key
 
     # Loop through tables and columns within tables
     for table_id, config in table_stats.items():
@@ -156,29 +188,26 @@ for url in player_urls:
                 print(f"Table {table_id} not found.")
                 continue
 
-            # Handle your table extraction logic (the rest of the code I shared earlier)
+            # Handle your table extraction logic
             text_keys = config.get("text", []) if isinstance(config, dict) else config
             title_keys = config.get("title", []) if isinstance(config, dict) else []
 
-            print("TEXT KEYS: ", text_keys)
-            print("TITLE KEYS: ", title_keys)
-
             header = table.find("thead")
-            headers = []
-            desired_indices = []
+            index_map = {}
+
             for idx, th in enumerate(header.find_all("th")):
                 span = th.find("span")
                 if not span:
                     continue
 
-                text_val = span.get_text(strip=True)
-                title_val = span.get("title", "").strip()
+                text_val = clean(span.get_text())
+                title_val = clean(span.get("title", ""))
 
-                if text_val in text_keys or title_val in title_keys:
-                    headers.append(text_val)
-                    print("HEADERS: ", headers)
-                    desired_indices.append(idx)
-                    print("IDX: ", idx)
+                if text_val in lookup_map:
+                    index_map[lookup_map[text_val]] = idx
+                elif title_val in lookup_map:
+                    index_map[lookup_map[title_val]] = idx
+
 
             # Locate the career row and extract stats
             career_b = table.find("b", string=lambda s: s and "Career" in s)
@@ -192,11 +221,11 @@ for url in player_urls:
 
             # Extract the desired statistics from columns
             stat_dict = {}
-            for i in desired_indices:
-                if i < len(cols):
-                    stat_dict[headers[i]] = cols[i].get_text(strip=True)
+            for header_key, col_idx in index_map.items():
+                if col_idx < len(cols):
+                    stat_dict[header_key] = cols[col_idx].get_text(strip=True)
                 else:
-                    stat_dict[headers[i]] = "N/A"
+                    stat_dict[header_key] = "N/A"
 
             all_results[table_id] = stat_dict
 
@@ -212,21 +241,26 @@ for url in player_urls:
     # Define headers (ensure these match your previous header structure)
     headers = ["player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
 
+    # Hard-coded base stats for the player
+    base_row = {
+        "player_name": player_info['name'], 
+        "current_rank": player_info['current_rank'],
+        "peak_rank": player_info['peak_rank']
+    }
+
     # Iterate through all_results and create rows for each table's stats
+    row = base_row.copy()  # Make a copy so we don’t modify the original
     for table_id, stats in all_results.items():
         for stat_name, stat_value in stats.items():
-            # Create a row with the player stats (flattened)
-            row = {"player_name": player_info['name'], 
-                "current_rank": player_info['current_rank'],
-                "peak_rank": player_info['peak_rank'],
-                f"{table_id}_{stat_name}": stat_value}  # Use table_id_stat_name as the key
-            
-            flattened_data.append(row)
+            row[f"{table_id}_{stat_name}"] = stat_value  # Flattened key
 
-            # Add to headers (if it's not already there)
-            for key in row.keys():
-                if key not in headers:
-                    headers.append(key)
+    # Append a full copy of the completed row
+    flattened_data.append(row.copy())
+
+    # Update headers
+    for key in row:
+        if key not in headers:
+            headers.append(key)
 
     # Define CSV file path
     csv_filename = 'player_data.csv'
