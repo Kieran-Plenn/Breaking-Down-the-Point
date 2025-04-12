@@ -273,6 +273,7 @@ for url in player_urls:
     file_exists = os.path.exists(csv_filename)
 
     # Open the CSV file and append the data
+    print("HEADERS: ", headers)
     with open(csv_filename, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=headers)
         
@@ -292,8 +293,6 @@ for url in player_urls:
 
     # Increment the successful scrape counter
     scraped_count += 1
-
-    print("ALL_RESULTS: ", all_results)
 
     # If we've reached the desired number of scrapes, then stop the loop
     if scraped_count >= desired_scrapes:
