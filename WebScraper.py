@@ -232,6 +232,10 @@ for url in player_urls:
         except Exception as e:
             print(f"Error while scraping table {table_id}: {e}")
 
+            # Create a dict with N/A for each header_key and add it to all_results with table_id as the key
+            missing_table_dict = {header_key: "N/A" for header_key in index_map.keys()}
+            all_results[table_id] = missing_table_dict  # Add the dictionary to all_results using table_id as the key
+
     # Quit the driver
     driver.quit()
 
