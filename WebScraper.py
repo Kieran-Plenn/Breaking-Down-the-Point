@@ -24,6 +24,23 @@ def clean(s):
     s = re.sub(r'\s+', ' ', s)            # Collapse multiple spaces
     return s.strip()
 
+# Function to make the generated headers usable to DictWriter
+def clean_headers(headers):
+    cleaned_headers = []
+    for header in headers:
+        # Remove parentheses
+        header = header.replace("(", "").replace(")", "")
+        
+        # Replace spaces with underscores
+        header = header.replace(" ", "_")
+        
+        cleaned_headers.append(header)
+    return cleaned_headers
+
+# Helper to clean keys in each row
+def clean_row_keys(row):
+    return {clean_headers([key])[0]: value for key, value in row.items()}
+
 # Tracking elapsed time of initial player list scrape
 list_scrape_start_time = time.time()
 
@@ -273,9 +290,8 @@ for url in player_urls:
     file_exists = os.path.exists(csv_filename)
 
     # Open the CSV file and append the data
-    print("HEADERS: ", headers)
     with open(csv_filename, mode='a', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
+        writer = csv.DictWriter(file, fieldnames=clean_headers(headers))
         
         # Write the header if the file doesn't exist
         if not file_exists:
@@ -283,7 +299,8 @@ for url in player_urls:
 
         # Write all the flattened data to the file (each player as one row)
         for row in flattened_data:
-            writer.writerow(row)
+            cleaned_row = clean_row_keys(row)  # Clean each row's keys
+            writer.writerow(cleaned_row)
 
     print("Data appended successfully to player_data.csv.")
 
