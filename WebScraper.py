@@ -28,12 +28,8 @@ def clean(s):
 def clean_headers(headers):
     cleaned_headers = []
     for header in headers:
-        # Remove parentheses
-        header = header.replace("(", "").replace(")", "")
-        
-        # Replace spaces with underscores
-        header = header.replace(" ", "_")
-        
+        # Remove empty parentheses (with any kind of space before)
+        header = re.sub(r'\s*\(\)', '', header)
         cleaned_headers.append(header)
     return cleaned_headers
 
