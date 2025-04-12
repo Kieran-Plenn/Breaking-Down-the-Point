@@ -68,7 +68,7 @@ else:
     scraped_urls = set()
 
 # Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 1
+desired_scrapes = 10
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -83,7 +83,8 @@ for url in player_urls:
     if url in scraped_urls:
         continue
 
-    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
+    # Uncomment to test specific Player
+    # url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
