@@ -13,29 +13,17 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from itertools import chain
 
 # Function to help match span text and title with keys
-def clean(s):
-    if not isinstance(s, str):
+def clean_span(span):
+    if not isinstance(span, str):
         return ''
-    s = unicodedata.normalize("NFKD", s)  # Normalize unicode characters
-    s = s.replace('\xa0', ' ')            # Replace non-breaking spaces
-    s = s.replace('\n', ' ')              # Replace line breaks
-    s = re.sub(r'\s+', ' ', s)            # Collapse multiple spaces
-    return s.strip()
-
-# Function to make the generated headers usable to DictWriter
-def clean_headers(headers):
-    cleaned_headers = []
-    for header in headers:
-        # Remove empty parentheses (with any kind of space before)
-        header = re.sub(r'\s*\(\)', '', header)
-        cleaned_headers.append(header)
-    return cleaned_headers
-
-# Helper to clean keys in each row
-def clean_row_keys(row):
-    return {clean_headers([key])[0]: value for key, value in row.items()}
+    span = unicodedata.normalize("NFKD", span)  # Normalize unicode characters
+    span = span.replace('\xa0', ' ')            # Replace non-breaking spaces
+    span = span.replace('\n', ' ')              # Replace line breaks
+    span = re.sub(r'\s+', ' ', span)            # Collapse multiple spaces
+    return span.strip()
 
 # Tracking elapsed time of initial player list scrape
 list_scrape_start_time = time.time()
@@ -68,7 +56,7 @@ else:
     scraped_urls = set()
 
 # Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 10
+desired_scrapes = 1
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -84,14 +72,14 @@ for url in player_urls:
         continue
 
     # Uncomment to test specific Player
-    # url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
+    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
     initial_soup = BeautifulSoup(initial_response.content, "html.parser")
     
     # Sleep to avoid 429 (too many requests) error code and alert if any errors
-    time.sleep(5)
+    time.sleep(3.5)
     print("Status code: ", initial_response.status_code)
 
     # Extract the text inside the script tag where var fullname is found in the HTML
@@ -118,7 +106,7 @@ for url in player_urls:
 
     # Define tables and stats to scrape
     table_stats = {
-        "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
+        "winners-errors": ["Winners", "Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
         "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
         "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
         "mcp-serve": {
@@ -177,18 +165,18 @@ for url in player_urls:
         title_keys = config.get("title", []) if isinstance(config, dict) else []
 
         for key in text_keys:
-            header_key = f"{table_id}_{key} ()"
-            lookup_map[key] = header_key
+            header_key = f"{key}"  
+            lookup_map[key] = header_key        
 
         for key in title_keys:
-            header_key = f"{table_id}_ ({key})"
+            header_key = f"{key}"
             lookup_map[key] = header_key
 
     # Loop through tables and columns within tables
     for table_id, config in table_stats.items():
         try:
             # Wait for the table to be present
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 4).until(
                 EC.presence_of_element_located((By.ID, table_id))
             )
 
@@ -214,8 +202,8 @@ for url in player_urls:
                 if not span:
                     continue
 
-                text_val = clean(span.get_text())
-                title_val = clean(span.get("title", ""))
+                text_val = clean_span(span.get_text())
+                title_val = clean_span(span.get("title", ""))
 
                 if text_val in lookup_map:
                     index_map[lookup_map[text_val]] = idx
@@ -244,11 +232,15 @@ for url in player_urls:
             all_results[table_id] = stat_dict
 
         except Exception as e:
-            print(f"Error while scraping table {table_id}: {e}")
+            print(f"{player_info['name']}'s page does NOT contain table: {table_id}")
 
             # Create a dict with N/A for each header_key and add it to all_results with table_id as the key
-            missing_table_dict = {header_key: "N/A" for header_key in index_map.keys()}
-            all_results[table_id] = missing_table_dict  # Add the dictionary to all_results using table_id as the key
+            if isinstance(config, dict):
+                missing_table_dict = {header_key: "N/A" for header_key in chain(config.get("text", []), config.get("title", []))}
+            else:
+                missing_table_dict = {header_key: "N/A" for header_key in config}
+            # Add the dictionary to all_results using table_id as the key
+            all_results[table_id] = missing_table_dict  
 
     # Quit the driver
     driver.quit()
@@ -281,14 +273,14 @@ for url in player_urls:
             headers.append(key)
 
     # Define CSV file path
-    csv_filename = 'player_data.csv'
+    csv_filename = 'player_data_test.csv'
 
     # Check if the file exists to decide whether to write the header or not
     file_exists = os.path.exists(csv_filename)
 
     # Open the CSV file and append the data
     with open(csv_filename, mode='a', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=clean_headers(headers))
+        writer = csv.DictWriter(file, fieldnames=headers)
         
         # Write the header if the file doesn't exist
         if not file_exists:
@@ -296,8 +288,7 @@ for url in player_urls:
 
         # Write all the flattened data to the file (each player as one row)
         for row in flattened_data:
-            cleaned_row = clean_row_keys(row)  # Clean each row's keys
-            writer.writerow(cleaned_row)
+            writer.writerow(row)
 
     print("Data appended successfully to player_data.csv.")
 
