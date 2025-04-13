@@ -66,7 +66,7 @@ else:
     scraped_urls = set()
 
 # Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 100
+desired_scrapes = 3
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -79,13 +79,13 @@ loop_scrape_start_time = time.time()
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
-    list(range(1, 11)) +       # 1 to 10
-    list(range(100, 111)) +    # 100 to 110
-    [500, 1001]                # specific indices
+    #list(range(1, 11)) +       # 1 to 10
+    #list(range(100, 111)) +    # 100 to 110
+    [499]                # specific indices
 )
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
-csv_filename = 'player_data_test.csv'
+csv_filename = 'player_data.csv'
 #'''
 
 # Now we scrape each page for our desired stats
@@ -98,7 +98,7 @@ for url in player_urls:
     # Uncomment to test specific Player
     '''
     test = True
-    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=CarlosAlcaraz"
+    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=NovakDjokovic"
     desired_scrapes = 1
     csv_filename = 'player_data_test.csv'
     '''
@@ -108,7 +108,7 @@ for url in player_urls:
     initial_soup = BeautifulSoup(initial_response.content, "html.parser")
     
     # Sleep to avoid 429 (too many requests) error code and alert if any errors
-    time.sleep(3.5)
+    time.sleep(4)
     print("Status code: ", initial_response.status_code)
 
     # Extract the text inside the script tag where var fullname is found in the HTML
@@ -130,61 +130,63 @@ for url in player_urls:
 
     driver.get(url)
 
-    # Keep track of how many matches are being used to collect data per player
-    num_matches = 0
-    scraped_tables_count = 0
-
     # Store stats with stat names
     all_results = {}
 
     # Define tables and stats to scrape
     table_stats = {
-        "recent-results": ["DR", "A%", "DF%", "1stIn", "1st%", "2nd%"],
-        #"winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
-        #"serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
-        #"pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
-        #"mcp-serve": {
-        #    "text": [
-        #        "D Wide%",
-        #        "A Wide%"
-        #    ],
-        #    "title": [
-        #        "Percent of first serve points won on either the serve or second shot",
-        #        "Percentage of first serve points won when return was put in play",
-        #        "Percent of second serve points won on either the serve or second shot",
-        #        "Percentage of second serve points won when return was put in play"
-        #    ]
-        #},
-        #"mcp-return": {
-        #    "text": [
-        #        "RiP%"
-        #    ],
-        #    "title": [
-        #        "Percent of points won when return was put in play",
-        #        "Return Depth Index (higher = deeper)",
-        #        "Slice/chip returns as a percentage of all in-play first-serve returns",
-        #        "Return winners (and induced forced errors) as a percentage of second-serve return points"
-        #    ]
-        #},
-        #"mcp-rally": ["RallyLen", "1-3 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
+        "tour-years": ["A%", "DF%", "1stIn", "1st%", "2nd%"],
+        "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
+        "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
+        "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
+        "mcp-serve": {
+            "text": [
+                "1st: Unret%",
+                "2nd: Unret%",
+                "D Wide%",
+                "A Wide%",
+                "2ndAgg"
+            ],
+            "title": [
+                "Serve Impact: Advanced stat estimating how many service points won due to the serve",
+                "Percent of first serve points won on either the serve or second shot",
+                "Percentage of first serve points won when return was put in play",
+                "Percent of second serve points won on either the serve or second shot",
+                "Percentage of second serve points won when return was put in play"
+            ]
+        },
+        "mcp-return": {
+            "text": [
+                "RiP%"
+            ],
+            "title": [
+                "Percent of points won when return was put in play",
+                "Return Depth Index (higher = deeper)",
+                "Slice/chip returns as a percentage of all in-play first-serve returns",
+                "Return winners (and induced forced errors) as a percentage of second-serve return points"
+            ]
+        },
+        "mcp-rally": ["RallyLen", "1-3 W%", "4-6 W%", "7-9 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
         
-        #"mcp-tactics": {
-        #    "text": [
-        #        "SnV Freq", 
-        #        "SnV W%", 
-        #        "Net Freq", 
-        #        "Net W%", 
-        #        "FH: Wnr%", 
-        #        "BH: Wnr%", 
-        #        "Drop: Freq"
-        #    ],
-        #    "title": [
-        #        "Winners (and induced forced errors) per (topspin) down-the-line forehand",
-        #        "Winners (and induced forced errors) per (topspin) inside-out forehand",
-        #        "Winners (and induced forced errors) per (topspin) down-the-line backhand",
-        #        "Winners (and induced forced errors) per (baseline) dropshot"
-        #    ]
-        #}
+        "mcp-tactics": {
+            "text": [
+                "SnV Freq", 
+                "SnV W%", 
+                "Net Freq", 
+                "Net W%", 
+                "FH: Wnr%", 
+                "IO Wnr%",
+                "BH: Wnr%", 
+                "Drop: Freq",
+                "RallyAgg",
+                "ReturnAgg"
+            ],
+            "title": [
+                "Winners (and induced forced errors) per (topspin) down-the-line forehand",
+                "Winners (and induced forced errors) per (topspin) down-the-line backhand",
+                "Winners (and induced forced errors) per (baseline) dropshot"
+            ]
+        }
     }
 
     # Generate a consistent list of all possible stat headers
@@ -206,8 +208,13 @@ for url in player_urls:
             header_key = f"{key}"
             lookup_map[key] = header_key
 
+    # We want the median of this
+    num_match_list = []
     # Loop through tables and columns within tables
     for table_id, config in table_stats.items():
+        # Keep track of how many matches are being used to collect data per player
+        num_matches = 0
+
         try:
             # Wait for the table to be present
             WebDriverWait(driver, 4).until(
@@ -243,7 +250,8 @@ for url in player_urls:
                     index_map[lookup_map[text_val]] = idx
                 elif title_val in lookup_map:
                     index_map[lookup_map[title_val]] = idx
-
+                elif text_val == "MS":  # special case where we might be scraping a career row where # of matches is in table
+                    num_matches_idx = idx
 
             # Locate the career row and extract stats
             career_b = table.find("b", string=lambda s: s and "Career" in s)
@@ -265,7 +273,11 @@ for url in player_urls:
             match = re.search(r'\((\d+)\s+matches?\)', text)
             if match:
                 num_matches += int(match.group(1))
-                scraped_tables_count += 1
+            elif num_matches_idx:
+                try:
+                    num_matches = int(cols[num_matches_idx].get_text(strip=True))
+                except ValueError:
+                    continue
             else:
                 num_matches += 0  # or None if you prefer
 
@@ -285,8 +297,14 @@ for url in player_urls:
             percent_tracker = {}
             # For each row in our whole table
             for row in table.find("tbody").find_all("tr"):
-                num_matches += 1
                 cols = row.find_all("td")
+                if num_matches_idx:
+                    try:
+                        num_matches += int(cols[num_matches_idx].get_text(strip=True))
+                    except ValueError:
+                        continue
+                else:
+                    num_matches += 1
                 for header_key, col_idx in index_map.items():
                     if col_idx < len(cols):
                         try:
@@ -299,6 +317,7 @@ for url in player_urls:
                             continue
                     else:
                         stat_dict[header_key] = "N/A"
+            
             for header_key, total in stat_dict.items():
                 try:
                     stat_dict[header_key] = "{:.2f}".format(stat_dict[header_key]/total_tracker[header_key])
@@ -307,7 +326,7 @@ for url in player_urls:
                 except Exception:
                     continue
             all_results[table_id] = stat_dict
-            scraped_tables_count += 1
+        
         except Exception as e:
             print(f"Error: could NOT scrape {table_id} table from {player_info['name']}'s page")
 
@@ -318,6 +337,12 @@ for url in player_urls:
                 missing_table_dict = {header_key: "N/A" for header_key in config}
             # Add the dictionary to all_results using table_id as the key
             all_results[table_id] = missing_table_dict  
+        num_match_list.append(num_matches)
+
+    # Quick calc
+    num_match_list.sort()
+    median_index = len(num_match_list) // 2
+    median_num_matches = num_match_list[median_index]
 
     # Quit the driver
     driver.quit()
@@ -326,14 +351,14 @@ for url in player_urls:
     flattened_data = []
 
     # Define headers (ensure these match your previous header structure)
-    headers = ["avg_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
+    headers = ["median_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
 
     # Hard-coded base stats for the player
     base_row = {
-        "avg_matches": int(num_matches/scraped_tables_count),
-        "player_name": player_info['name'], 
-        "current_rank": player_info['current_rank'],
-        "peak_rank": player_info['peak_rank']
+        headers[0]: median_num_matches,
+        headers[1]: player_info['name'], 
+        headers[2]: player_info['current_rank'],
+        headers[3]: player_info['peak_rank']
     }
 
     # Iterate through all_results and create rows for each table's stats
