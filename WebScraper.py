@@ -96,12 +96,12 @@ for url in player_urls:
         continue
 
     # Uncomment to test specific Player
-    #'''
+    '''
     test = True
     url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=TobyAlexKodat"
     desired_scrapes = 1
     csv_filename = 'player_data_test.csv'
-    #'''
+    '''
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
@@ -378,17 +378,20 @@ for url in player_urls:
     # Flatten the all_results data into a list of rows
     flattened_data = []
 
-    # Define headers (ensure these match your previous header structure)
-    headers = ["url", "median_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
+    # Define hard coded headers (ensure these match your previous header structure)
+    headers = ["median_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
 
-    # Hard-coded base stats for the player
-    base_row = {
-        headers[0]: url,
-        headers[1]: median_num_matches,
-        headers[2]: player_info['name'], 
-        headers[3]: player_info['current_rank'],
-        headers[4]: player_info['peak_rank']
+    # Create a mapping from header names to values
+    player_info_map = {
+        "url": url,
+        "median_matches": median_num_matches,
+        "player_name": player_info.get("name", "N/A"),
+        "current_rank": player_info.get("current_rank", "N/A"),
+        "peak_rank": player_info.get("peak_rank", "N/A")
     }
+
+    # Build the base row dynamically
+    base_row = {header: player_info_map.get(header, "N/A") for header in headers}
 
     # Iterate through all_results and create rows for each table's stats
     row = base_row.copy()  # Make a copy so we don’t modify the original
