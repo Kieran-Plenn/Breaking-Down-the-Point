@@ -15,6 +15,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from itertools import chain
 
+# Custom exception names for readability
+class CareerRowNotFoundException(Exception):
+    pass
+
 # Function to help match span text and title with keys
 def clean_span(span):
     if not isinstance(span, str):
@@ -47,6 +51,12 @@ print(f"Player list scrape elapsed time: {int(list_scrape_elapsed_minutes)}:{int
 # Create a file to save most recently scraped URL as a checkpoint
 checkpoint_file = "scraped_players.txt"
 
+# Define CSV file path
+csv_filename = 'player_data.csv'
+
+# Identify if we are testing so we ignore checkpoint_file
+test = False
+
 # If the file already exists, then load the Set of already scraped URLs
 if os.path.exists(checkpoint_file):
     with open(checkpoint_file, "r") as f:
@@ -64,15 +74,34 @@ scraped_count = 0
 # Tracking elapsed time of consecutive page scrapes
 loop_scrape_start_time = time.time()
 
+# Uncomment to test specific list of players
+#'''
+test = True
+# Define your desired indices (can mix ranges and specific values)
+target_indices = (
+    list(range(1, 11)) +       # 1 to 10
+    list(range(100, 111)) +    # 100 to 110
+    [500, 1001]                # specific indices
+)
+player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
+desired_scrapes = len(player_urls)
+csv_filename = 'player_data_test.csv'
+#'''
+
 # Now we scrape each page for our desired stats
 for url in player_urls:
 
     # If current URL is in already scraped URLs, then continue
-    if url in scraped_urls:
+    if url in scraped_urls and not test:
         continue
 
     # Uncomment to test specific Player
-    # url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
+    '''
+    test = True
+    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=CarlosAlcaraz"
+    desired_scrapes = 1
+    csv_filename = 'player_data_test.csv'
+    '''
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
@@ -110,51 +139,52 @@ for url in player_urls:
 
     # Define tables and stats to scrape
     table_stats = {
-        "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
-        "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
-        "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
-        "mcp-serve": {
-            "text": [
-                "D Wide%",
-                "A Wide%"
-            ],
-            "title": [
-                "Percent of first serve points won on either the serve or second shot",
-                "Percentage of first serve points won when return was put in play",
-                "Percent of second serve points won on either the serve or second shot",
-                "Percentage of second serve points won when return was put in play"
-            ]
-        },
-        "mcp-return": {
-            "text": [
-                "RiP%"
-            ],
-            "title": [
-                "Percent of points won when return was put in play",
-                "Return Depth Index (higher = deeper)",
-                "Slice/chip returns as a percentage of all in-play first-serve returns",
-                "Return winners (and induced forced errors) as a percentage of second-serve return points"
-            ]
-        },
-        "mcp-rally": ["RallyLen", "1-3 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
+        "recent-results": ["DR", "A%", "DF%", "1stIn", "1st%", "2nd%"],
+        #"winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
+        #"serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
+        #"pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
+        #"mcp-serve": {
+        #    "text": [
+        #        "D Wide%",
+        #        "A Wide%"
+        #    ],
+        #    "title": [
+        #        "Percent of first serve points won on either the serve or second shot",
+        #        "Percentage of first serve points won when return was put in play",
+        #        "Percent of second serve points won on either the serve or second shot",
+        #        "Percentage of second serve points won when return was put in play"
+        #    ]
+        #},
+        #"mcp-return": {
+        #    "text": [
+        #        "RiP%"
+        #    ],
+        #    "title": [
+        #        "Percent of points won when return was put in play",
+        #        "Return Depth Index (higher = deeper)",
+        #        "Slice/chip returns as a percentage of all in-play first-serve returns",
+        #        "Return winners (and induced forced errors) as a percentage of second-serve return points"
+        #    ]
+        #},
+        #"mcp-rally": ["RallyLen", "1-3 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
         
-        "mcp-tactics": {
-            "text": [
-                "SnV Freq", 
-                "SnV W%", 
-                "Net Freq", 
-                "Net W%", 
-                "FH: Wnr%", 
-                "BH: Wnr%", 
-                "Drop: Freq"
-            ],
-            "title": [
-                "Winners (and induced forced errors) per (topspin) down-the-line forehand",
-                "Winners (and induced forced errors) per (topspin) inside-out forehand",
-                "Winners (and induced forced errors) per (topspin) down-the-line backhand",
-                "Winners (and induced forced errors) per (baseline) dropshot"
-            ]
-        }
+        #"mcp-tactics": {
+        #    "text": [
+        #        "SnV Freq", 
+        #        "SnV W%", 
+        #        "Net Freq", 
+        #        "Net W%", 
+        #        "FH: Wnr%", 
+        #        "BH: Wnr%", 
+        #        "Drop: Freq"
+        #    ],
+        #    "title": [
+        #        "Winners (and induced forced errors) per (topspin) down-the-line forehand",
+        #        "Winners (and induced forced errors) per (topspin) inside-out forehand",
+        #        "Winners (and induced forced errors) per (topspin) down-the-line backhand",
+        #        "Winners (and induced forced errors) per (baseline) dropshot"
+        #    ]
+        #}
     }
 
     # Generate a consistent list of all possible stat headers
@@ -221,7 +251,7 @@ for url in player_urls:
 
             if not career_row:
                 print(f"Career row not found in {table_id}.")
-                raise Exception()
+                raise CareerRowNotFoundException()
 
             cols = career_row.find_all("td")
             
@@ -249,6 +279,35 @@ for url in player_urls:
 
             all_results[table_id] = stat_dict
 
+        except CareerRowNotFoundException as e:
+            stat_dict = {}
+            total_tracker = {}
+            percent_tracker = {}
+            # For each row in our whole table
+            for row in table.find("tbody").find_all("tr"):
+                num_matches += 1
+                cols = row.find_all("td")
+                for header_key, col_idx in index_map.items():
+                    if col_idx < len(cols):
+                        try:
+                            if "%" in cols[col_idx].text:
+                                percent_tracker[header_key] = True
+                            value = cols[col_idx].text.strip('%')
+                            stat_dict[header_key] = stat_dict.get(header_key, 0.0) + float(value)
+                            total_tracker[header_key] = total_tracker.get(header_key, 0) + 1
+                        except ValueError:
+                            continue
+                    else:
+                        stat_dict[header_key] = "N/A"
+            for header_key, total in stat_dict.items():
+                try:
+                    stat_dict[header_key] = "{:.2f}".format(stat_dict[header_key]/total_tracker[header_key])
+                    if percent_tracker[header_key]:
+                        stat_dict[header_key] = f"{stat_dict[header_key]}%"
+                except Exception:
+                    continue
+            all_results[table_id] = stat_dict
+            scraped_tables_count += 1
         except Exception as e:
             print(f"Error: could NOT scrape {table_id} table from {player_info['name']}'s page")
 
@@ -291,9 +350,6 @@ for url in player_urls:
         if key not in headers:
             headers.append(key)
 
-    # Define CSV file path
-    csv_filename = 'player_data.csv'
-
     # Check if the file exists to decide whether to write the header or not
     file_exists = os.path.exists(csv_filename)
 
@@ -311,9 +367,10 @@ for url in player_urls:
 
     print("Data appended successfully to player_data.csv.")
 
-    # Add successfully scraped player page to checkpoint list
-    with open(checkpoint_file, "a") as f:
-        f.write(url + "\n")
+    # Add successfully scraped player page to checkpoint list (unless we're testing)
+    if not test:
+        with open(checkpoint_file, "a") as f:
+            f.write(url + "\n")
 
     # Increment the successful scrape counter
     scraped_count += 1
