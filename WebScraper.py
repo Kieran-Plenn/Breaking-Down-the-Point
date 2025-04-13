@@ -66,7 +66,7 @@ else:
     scraped_urls = set()
 
 # Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 3
+desired_scrapes = 650
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -75,7 +75,7 @@ scraped_count = 0
 loop_scrape_start_time = time.time()
 
 # Uncomment to test specific list of players
-#'''
+'''
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
@@ -85,8 +85,8 @@ target_indices = (
 )
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
-csv_filename = 'player_data.csv'
-#'''
+csv_filename = 'player_data_test.csv'
+'''
 
 # Now we scrape each page for our desired stats
 for url in player_urls:
@@ -96,12 +96,12 @@ for url in player_urls:
         continue
 
     # Uncomment to test specific Player
-    '''
+    #'''
     test = True
-    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=NovakDjokovic"
+    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=TobyAlexKodat"
     desired_scrapes = 1
     csv_filename = 'player_data_test.csv'
-    '''
+    #'''
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
@@ -118,10 +118,40 @@ for url in player_urls:
     player_info = {}
 
     # Use regex to extract the first instance of relevant info
-    player_info['name'] = re.search(r"var fullname = '([^']+)'", script_content).group(1)
-    player_info['current_rank'] = re.search(r"var currentrank = (\d+)", script_content).group(1)
-    player_info['peak_rank'] = re.search(r"var peakrank = (\d+)", script_content).group(1)
-    
+    # Extract full name safely
+    try:
+        match = re.search(r"var fullname = '([^']+)'", script_content)
+        player_info['name'] = match.group(1) if match else 'N/A'
+        if not match:
+            print(f"[WARN] Missing name on {player_url}")
+    except Exception as e:
+        print(f"[ERROR] Failed to extract name from {player_url}: {e}")
+        player_info['name'] = 'N/A'
+
+    # Extract current rank (with UNR handling)
+    try:
+        match = re.search(r"var currentrank = (\d+)", script_content)
+        if match:
+            player_info['current_rank'] = match.group(1)
+        elif 'UNR' in script_content:
+            player_info['current_rank'] = 'UNR'
+        else:
+            player_info['current_rank'] = 'N/A'
+            print(f"[WARN] No current rank found on {player_url}")
+    except Exception as e:
+        print(f"[ERROR] Failed to extract current rank from {player_url}: {e}")
+        player_info['current_rank'] = 'N/A'
+
+    # Extract peak rank
+    try:
+        match = re.search(r"var peakrank = (\d+)", script_content)
+        player_info['peak_rank'] = match.group(1) if match else 'N/A'
+        if not match:
+            print(f"[WARN] Missing peak rank on {player_url}")
+    except Exception as e:
+        print(f"[ERROR] Failed to extract peak rank from {player_url}: {e}")
+        player_info['peak_rank'] = 'N/A'
+
     # Point this to your ChromeDriver path
     service = Service("C:\\chromedriver-win64\\chromedriver.exe")
     options = webdriver.ChromeOptions()
@@ -217,9 +247,7 @@ for url in player_urls:
 
         try:
             # Wait for the table to be present
-            WebDriverWait(driver, 4).until(
-                EC.presence_of_element_located((By.ID, table_id))
-            )
+            WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.ID, table_id)))
 
             # Get the page source after the table has loaded
             html = driver.page_source
@@ -351,14 +379,15 @@ for url in player_urls:
     flattened_data = []
 
     # Define headers (ensure these match your previous header structure)
-    headers = ["median_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
+    headers = ["url", "median_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
 
     # Hard-coded base stats for the player
     base_row = {
-        headers[0]: median_num_matches,
-        headers[1]: player_info['name'], 
-        headers[2]: player_info['current_rank'],
-        headers[3]: player_info['peak_rank']
+        headers[0]: url,
+        headers[1]: median_num_matches,
+        headers[2]: player_info['name'], 
+        headers[3]: player_info['current_rank'],
+        headers[4]: player_info['peak_rank']
     }
 
     # Iterate through all_results and create rows for each table's stats
