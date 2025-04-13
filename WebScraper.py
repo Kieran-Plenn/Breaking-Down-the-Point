@@ -101,6 +101,10 @@ for url in player_urls:
 
     driver.get(url)
 
+    # Keep track of how many matches are being used to collect data per player
+    num_matches = 0
+    scraped_tables_count = 0
+
     # Store stats with stat names
     all_results = {}
 
@@ -217,9 +221,23 @@ for url in player_urls:
 
             if not career_row:
                 print(f"Career row not found in {table_id}.")
-                continue
+                raise Exception()
 
             cols = career_row.find_all("td")
+            
+            # Keep track of poor match sample size for players
+            td_element = cols[0]  # this is a BeautifulSoup tag like <td><b>Career (1 matches)</b></td>
+
+            # extract the inner text
+            text = td_element.get_text(strip=True)  # 'Career (1 matches)'
+
+            # use regex to extract the number inside parentheses
+            match = re.search(r'\((\d+)\s+matches?\)', text)
+            if match:
+                num_matches += int(match.group(1))
+                scraped_tables_count += 1
+            else:
+                num_matches += 0  # or None if you prefer
 
             # Extract the desired statistics from columns
             stat_dict = {}
@@ -232,7 +250,7 @@ for url in player_urls:
             all_results[table_id] = stat_dict
 
         except Exception as e:
-            print(f"{player_info['name']}'s page does NOT contain table: {table_id}")
+            print(f"Error: could NOT scrape {table_id} table from {player_info['name']}'s page")
 
             # Create a dict with N/A for each header_key and add it to all_results with table_id as the key
             if isinstance(config, dict):
@@ -249,10 +267,11 @@ for url in player_urls:
     flattened_data = []
 
     # Define headers (ensure these match your previous header structure)
-    headers = ["player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
+    headers = ["avg_matches", "player_name", "current_rank", "peak_rank"]  # Add player-specific details as headers first
 
     # Hard-coded base stats for the player
     base_row = {
+        "avg_matches": num_matches/scraped_tables_count,
         "player_name": player_info['name'], 
         "current_rank": player_info['current_rank'],
         "peak_rank": player_info['peak_rank']
