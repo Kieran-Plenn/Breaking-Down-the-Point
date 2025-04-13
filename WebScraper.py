@@ -97,6 +97,7 @@ for url in player_urls:
 
     # Uncomment to test specific Player
     '''
+    # Test Czar Cretu for proper median matches and Giovanni Fonio (don't think they should be 0's)
     test = True
     url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=TobyAlexKodat"
     desired_scrapes = 1
