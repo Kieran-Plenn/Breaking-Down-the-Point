@@ -56,7 +56,7 @@ else:
     scraped_urls = set()
 
 # Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 1
+desired_scrapes = 100
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -72,7 +72,7 @@ for url in player_urls:
         continue
 
     # Uncomment to test specific Player
-    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
+    # url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=PatrickBrady"
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
@@ -110,7 +110,7 @@ for url in player_urls:
 
     # Define tables and stats to scrape
     table_stats = {
-        "winners-errors": ["Winners", "Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
+        "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
         "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
         "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
         "mcp-serve": {
@@ -271,7 +271,7 @@ for url in player_urls:
 
     # Hard-coded base stats for the player
     base_row = {
-        "avg_matches": num_matches/scraped_tables_count,
+        "avg_matches": int(num_matches/scraped_tables_count),
         "player_name": player_info['name'], 
         "current_rank": player_info['current_rank'],
         "peak_rank": player_info['peak_rank']
@@ -292,7 +292,7 @@ for url in player_urls:
             headers.append(key)
 
     # Define CSV file path
-    csv_filename = 'player_data_test.csv'
+    csv_filename = 'player_data.csv'
 
     # Check if the file exists to decide whether to write the header or not
     file_exists = os.path.exists(csv_filename)
