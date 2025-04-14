@@ -70,7 +70,7 @@ else:
     scraped_urls = set()
 
 # Determines size of .csv (number of players/rows we want)
-desired_scrapes = 10
+desired_scrapes = 1000
 
 # Counter for successful scrapes
 scraped_count = 0
@@ -78,19 +78,75 @@ scraped_count = 0
 # Tracking elapsed time of consecutive page scrapes
 total_loop_start_time = time.time()
 
+# Define tables and stats to scrape
+table_stats = {
+    "tour-years": ["A%", "DF%", "1stIn", "1st%", "2nd%"],
+    "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
+    "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
+    "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
+    "mcp-serve": {
+        "text": [
+            "1st: Unret%",
+            "2nd: Unret%",
+            "D Wide%",
+            "A Wide%",
+            "2ndAgg"
+        ],
+        "title": [
+            "Serve Impact: Advanced stat estimating how many service points won due to the serve",
+            "Percent of first serve points won on either the serve or second shot",
+            "Percentage of first serve points won when return was put in play",
+            "Percent of second serve points won on either the serve or second shot",
+            "Percentage of second serve points won when return was put in play"
+        ]
+    },
+    "mcp-return": {
+        "text": [
+            "RiP%"
+        ],
+        "title": [
+            "Percent of points won when return was put in play",
+            "Return Depth Index (higher = deeper)",
+            "Slice/chip returns as a percentage of all in-play first-serve returns",
+            "Return winners (and induced forced errors) as a percentage of second-serve return points"
+        ]
+    },
+    "mcp-rally": ["RallyLen", "1-3 W%", "4-6 W%", "7-9 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
+        
+    "mcp-tactics": {
+        "text": [
+            "SnV Freq", 
+            "SnV W%", 
+            "Net Freq", 
+            "Net W%", 
+            "FH: Wnr%", 
+            "IO Wnr%",
+            "BH: Wnr%", 
+            "Drop: Freq",
+            "RallyAgg",
+            "ReturnAgg"
+        ],
+        "title": [
+            "Winners (and induced forced errors) per (topspin) down-the-line forehand",
+            "Winners (and induced forced errors) per (topspin) down-the-line backhand",
+            "Winners (and induced forced errors) per (baseline) dropshot"
+        ]
+    }
+}
+
 # Uncomment to test specific list of players
-#'''
+'''
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
     list(range(373, 386))      # Rank 374 to Rank 386
     #list(range(100, 111)) +    # 100 to 110
-    #[499]                # specific indices
+    #[373]                # specific indices
 )
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
 csv_filename = 'player_data_test.csv'
-#'''
+'''
 
 # Uncomment to test specific Player
 '''
@@ -182,66 +238,20 @@ for url_total, url in enumerate(player_urls):
 
     # Navigate the browser to the specified URL
     driver.get(url)
+    
+    # Grab all table elements and their IDs
+    tables_on_page = driver.find_elements(By.TAG_NAME, "table")
+    table_ids_found = {table.get_attribute("id") for table in tables_on_page if table.get_attribute("id")}
+    
+    # Check if page contains any desired tables
+    if not table_stats.keys() & table_ids_found:
+        print(f"Skipping {player_info.get("name")}'s page - no desired tables available")
+        driver.quit()
+        continue  # if page features no desired tables continue and skip player
 
     # Store stats with stat names
     all_results = {}
-
-    # Define tables and stats to scrape
-    table_stats = {
-        "tour-years": ["A%", "DF%", "1stIn", "1st%", "2nd%"],
-        "winners-errors": ["Wnr/Pt", "UFE/Pt", "FH Wnr/Pt", "BH Wnr/Pt"],
-        "serve-speed": ["1st Avg", "1st T Avg", "1st Wide Avg","2nd Avg", "2nd T Avg", "2nd Wide Avg"],
-        "pbp-stats": ["Deuce A%", "Deuce SPW%", "Ad A%", "Ad SPW%", "Deuce RPW%", "Ad RPW%"],
-        "mcp-serve": {
-            "text": [
-                "1st: Unret%",
-                "2nd: Unret%",
-                "D Wide%",
-                "A Wide%",
-                "2ndAgg"
-            ],
-            "title": [
-                "Serve Impact: Advanced stat estimating how many service points won due to the serve",
-                "Percent of first serve points won on either the serve or second shot",
-                "Percentage of first serve points won when return was put in play",
-                "Percent of second serve points won on either the serve or second shot",
-                "Percentage of second serve points won when return was put in play"
-            ]
-        },
-        "mcp-return": {
-            "text": [
-                "RiP%"
-            ],
-            "title": [
-                "Percent of points won when return was put in play",
-                "Return Depth Index (higher = deeper)",
-                "Slice/chip returns as a percentage of all in-play first-serve returns",
-                "Return winners (and induced forced errors) as a percentage of second-serve return points"
-            ]
-        },
-        "mcp-rally": ["RallyLen", "1-3 W%", "4-6 W%", "7-9 W%", "10+ W%", "FH/GS", "BH Slice%", "FHP/100", "BHP/100"],
-        
-        "mcp-tactics": {
-            "text": [
-                "SnV Freq", 
-                "SnV W%", 
-                "Net Freq", 
-                "Net W%", 
-                "FH: Wnr%", 
-                "IO Wnr%",
-                "BH: Wnr%", 
-                "Drop: Freq",
-                "RallyAgg",
-                "ReturnAgg"
-            ],
-            "title": [
-                "Winners (and induced forced errors) per (topspin) down-the-line forehand",
-                "Winners (and induced forced errors) per (topspin) down-the-line backhand",
-                "Winners (and induced forced errors) per (baseline) dropshot"
-            ]
-        }
-    }
-
+    
     # Generate a consistent list of all possible stat headers
     lookup_map = {
         "player_name": "player_name",
@@ -464,5 +474,5 @@ for url_total, url in enumerate(player_urls):
 # Completion message
 print("\nSCRAPE COMPLETE...")
 total_time = time.time() - total_loop_start_time
-print(f"Total elapsed time ({desired_scrapes} pages): {format_time(total_time)}")
+print(f"Total elapsed time ({scraped_count} pages): {format_time(total_time)}")
 
