@@ -240,6 +240,7 @@ for url_total, url in enumerate(player_urls):
     driver.get(url)
     
     # Grab all table elements and their IDs
+    WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
     tables_on_page = driver.find_elements(By.TAG_NAME, "table")
     table_ids_found = {table.get_attribute("id") for table in tables_on_page if table.get_attribute("id")}
     
@@ -445,15 +446,16 @@ for url_total, url in enumerate(player_urls):
         if key not in headers:
             headers.append(key)
 
-    # Check if the file exists to decide whether to write the header or not
+    # Check if the file exists or is empty to decide whether to write the header or not
     file_exists = os.path.exists(csv_filename)
+    file_is_empty = os.path.getsize(csv_filename) == 0
 
     # Open the CSV file and append the data
     with open(csv_filename, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=headers)
         
         # Write the header if the file doesn't exist
-        if not file_exists:
+        if not file_exists or file_is_empty:
             writer.writeheader()
 
         # Write all the flattened data to the file (each player as one row)
