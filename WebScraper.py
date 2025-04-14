@@ -29,6 +29,14 @@ def clean_span(span):
     span = re.sub(r'\s+', ' ', span)            # Collapse multiple spaces
     return span.strip()
 
+# Function to return formatted elapsed time (min:sec:milli)
+def format_time(elapsed_time):
+    elapsed_minutes = elapsed_time // 60
+    elapsed_seconds = elapsed_time % 60
+    elapsed_milliseconds = (elapsed_time - int(elapsed_time)) * 10000
+    return f"{int(elapsed_minutes)}:{int(elapsed_seconds)}:{int(elapsed_milliseconds)}"
+
+
 # Tracking elapsed time of initial player list scrape
 list_scrape_start_time = time.time()
 
@@ -39,14 +47,10 @@ player_list_soup = BeautifulSoup(player_list_response.content, 'html.parser')
 
 # We'll isolate just the URLs for player pages from the scraped "soup" 
 urls = player_list_soup.find_all('a', href=True)
-player_urls = [url['href'] for url in urls if '.cgi?p=' in url['href']]
+player_urls = [url['href'] for url in urls if 'player' in url['href']]
 
-# Calculate and display player list scrape elapsed time
-list_scrape_elapsed_time = time.time() - list_scrape_start_time
-list_scrape_elapsed_minutes = list_scrape_elapsed_time // 60
-list_scrape_elapsed_seconds = list_scrape_elapsed_time % 60
-list_scrape_elapsed_milliseconds = (list_scrape_elapsed_time - int(list_scrape_elapsed_time)) * 10000
-print(f"Player list scrape elapsed time: {int(list_scrape_elapsed_minutes)}:{int(list_scrape_elapsed_seconds)}:{int(list_scrape_elapsed_milliseconds)}")
+# Display player list scrape elapsed time
+print(f"Successfully scraped {len(player_urls)} player url(s) (time: {format_time(time.time() - list_scrape_start_time)})")
 
 # Create a file to save most recently scraped URL as a checkpoint
 checkpoint_file = "scraped_players.txt"
@@ -65,44 +69,64 @@ if os.path.exists(checkpoint_file):
 else:
     scraped_urls = set()
 
-# Number of successful scrapes to perform (e.g., 10 or 50)
-desired_scrapes = 650
+# Determines size of .csv (number of players/rows we want)
+desired_scrapes = 10
 
 # Counter for successful scrapes
 scraped_count = 0
 
 # Tracking elapsed time of consecutive page scrapes
-loop_scrape_start_time = time.time()
+total_loop_start_time = time.time()
 
 # Uncomment to test specific list of players
 '''
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
-    #list(range(1, 11)) +       # 1 to 10
+    list(range(373, 386))        # 1 to 10
     #list(range(100, 111)) +    # 100 to 110
-    [499]                # specific indices
+    #[499]                # specific indices
 )
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
 csv_filename = 'player_data_test.csv'
 '''
 
-# Now we scrape each page for our desired stats
-for url in player_urls:
+# Uncomment to test specific Player
+'''
+test = True
+player_urls = ["https://www.tennisabstract.com/cgi-bin/player.cgi?p=GiovanniFonio"
+               ]
+desired_scrapes = len(player_urls)
+csv_filename = 'player_data_test.csv'
+'''
 
-    # If current URL is in already scraped URLs, then continue
+# Confirm before running real scrapes
+if not test:
+    confirm = input("NOT A TEST: This will change saved files. Are you sure you want to proceed? (y/n): ")
+    if confirm.lower() not in ['y', 'yes']:
+        print("Scraping cancelled. Exiting program.")
+        exit()
+
+# Point this to your ChromeDriver path
+service = Service("C:\\chromedriver-win64\\chromedriver.exe")
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Optional: Run in headless mode
+driver = webdriver.Chrome(service=service, options=options)
+
+# Now we scrape each page for our desired stats
+for url_total, url in enumerate(player_urls):
+    # Track scrape time for each page
+    player_scrape_start_time = time.time()
+
+    # If we've reached the desired number of scrapes, then stop the loop
+    if url_total >= desired_scrapes:
+        print(f"Successfully scraped {scraped_count} players. Stopping.")
+        break
+
+    # If current URL is in already scraped URLs (and we aren't just testing), then continue
     if url in scraped_urls and not test:
         continue
-
-    # Uncomment to test specific Player
-    '''
-    # Test Czar Cretu for proper median matches and Giovanni Fonio (don't think they should be 0's)
-    test = True
-    url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=TobyAlexKodat"
-    desired_scrapes = 1
-    csv_filename = 'player_data_test.csv'
-    '''
 
     # Parse raw HTML player page for some quick initial variables
     initial_response = requests.get(url)
@@ -110,7 +134,7 @@ for url in player_urls:
     
     # Sleep to avoid 429 (too many requests) error code and alert if any errors
     time.sleep(4)
-    print("Status code: ", initial_response.status_code)
+    print("Status code:", initial_response.status_code, " (", url, ")")
 
     # Extract the text inside the script tag where var fullname is found in the HTML
     script_content = initial_soup.find('script', string=re.compile('var fullname =')).string
@@ -118,15 +142,18 @@ for url in player_urls:
     # Initializes an empty dictionary to store extracted info
     player_info = {}
 
+    # Keep track of missing tables
+    error_tables = []
+
     # Use regex to extract the first instance of relevant info
     # Extract full name safely
     try:
         match = re.search(r"var fullname = '([^']+)'", script_content)
         player_info['name'] = match.group(1) if match else 'N/A'
         if not match:
-            print(f"[WARN] Missing name on {player_url}")
+            print(f"[WARN] Missing name on {url}")
     except Exception as e:
-        print(f"[ERROR] Failed to extract name from {player_url}: {e}")
+        print(f"[ERROR] Failed to extract name from {url}: {e}")
         player_info['name'] = 'N/A'
 
     # Extract current rank (with UNR handling)
@@ -138,9 +165,9 @@ for url in player_urls:
             player_info['current_rank'] = 'UNR'
         else:
             player_info['current_rank'] = 'N/A'
-            print(f"[WARN] No current rank found on {player_url}")
+            print(f"[WARN] No current rank found on {url}")
     except Exception as e:
-        print(f"[ERROR] Failed to extract current rank from {player_url}: {e}")
+        print(f"[ERROR] Failed to extract current rank from {url}: {e}")
         player_info['current_rank'] = 'N/A'
 
     # Extract peak rank
@@ -148,17 +175,12 @@ for url in player_urls:
         match = re.search(r"var peakrank = (\d+)", script_content)
         player_info['peak_rank'] = match.group(1) if match else 'N/A'
         if not match:
-            print(f"[WARN] Missing peak rank on {player_url}")
+            print(f"[WARN] Missing peak rank on {url}")
     except Exception as e:
-        print(f"[ERROR] Failed to extract peak rank from {player_url}: {e}")
+        print(f"[ERROR] Failed to extract peak rank from {url}: {e}")
         player_info['peak_rank'] = 'N/A'
 
-    # Point this to your ChromeDriver path
-    service = Service("C:\\chromedriver-win64\\chromedriver.exe")
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Optional: Run in headless mode
-    driver = webdriver.Chrome(service=service, options=options)
-
+    # Navigate the browser to the specified URL
     driver.get(url)
 
     # Store stats with stat names
@@ -240,7 +262,7 @@ for url in player_urls:
             lookup_map[key] = header_key
 
     # We want the median of this
-    num_match_list = []
+    num_matches_list = []
     # Loop through tables and columns within tables
     for table_id, config in table_stats.items():
         # Keep track of how many matches are being used to collect data per player
@@ -248,7 +270,7 @@ for url in player_urls:
 
         try:
             # Wait for the table to be present
-            WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.ID, table_id)))
+            WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.ID, table_id)))
 
             # Get the page source after the table has loaded
             html = driver.page_source
@@ -322,7 +344,7 @@ for url in player_urls:
 
         except CareerRowNotFoundException as e:
             stat_dict = {}
-            total_tracker = {}
+            col_total_tracker = {}
             percent_tracker = {}
             # For each row in our whole table
             for row in table.find("tbody").find_all("tr"):
@@ -341,7 +363,7 @@ for url in player_urls:
                                 percent_tracker[header_key] = True
                             value = cols[col_idx].text.strip('%')
                             stat_dict[header_key] = stat_dict.get(header_key, 0.0) + float(value)
-                            total_tracker[header_key] = total_tracker.get(header_key, 0) + 1
+                            col_total_tracker[header_key] = col_total_tracker.get(header_key, 0) + 1
                         except ValueError:
                             continue
                     else:
@@ -349,7 +371,7 @@ for url in player_urls:
             
             for header_key, total in stat_dict.items():
                 try:
-                    stat_dict[header_key] = "{:.2f}".format(stat_dict[header_key]/total_tracker[header_key])
+                    stat_dict[header_key] = "{:.2f}".format(stat_dict[header_key]/col_total_tracker[header_key])
                     if percent_tracker[header_key]:
                         stat_dict[header_key] = f"{stat_dict[header_key]}%"
                 except Exception:
@@ -357,7 +379,8 @@ for url in player_urls:
             all_results[table_id] = stat_dict
         
         except Exception as e:
-            print(f"Error: could NOT scrape {table_id} table from {player_info['name']}'s page")
+            # Add table_id to list of missing tables
+            error_tables.append(table_id)
 
             # Create a dict with N/A for each header_key and add it to all_results with table_id as the key
             if isinstance(config, dict):
@@ -366,15 +389,13 @@ for url in player_urls:
                 missing_table_dict = {header_key: "N/A" for header_key in config}
             # Add the dictionary to all_results using table_id as the key
             all_results[table_id] = missing_table_dict  
-        num_match_list.append(num_matches)
+        if table_id not in error_tables:
+            num_matches_list.append(num_matches)
 
     # Quick calc
-    num_match_list.sort()
-    median_index = len(num_match_list) // 2
-    median_num_matches = num_match_list[median_index]
-
-    # Quit the driver
-    driver.quit()
+    num_matches_list.sort()
+    median_index = len(num_matches_list) // 2
+    median_num_matches = num_matches_list[median_index]
 
     # Flatten the all_results data into a list of rows
     flattened_data = []
@@ -423,8 +444,6 @@ for url in player_urls:
         for row in flattened_data:
             writer.writerow(row)
 
-    print("Data appended successfully to player_data.csv.")
-
     # Add successfully scraped player page to checkpoint list (unless we're testing)
     if not test:
         with open(checkpoint_file, "a") as f:
@@ -432,16 +451,15 @@ for url in player_urls:
 
     # Increment the successful scrape counter
     scraped_count += 1
+    
+    # Output info and confirmation message
+    print(f"{player_info.get("name")}'s page data appended successfully in time: {format_time(time.time() - player_scrape_start_time)} (missing {len(error_tables)} tables).")
 
-    # If we've reached the desired number of scrapes, then stop the loop
-    if scraped_count >= desired_scrapes:
-        print(f"Successfully scraped {scraped_count} players. Stopping.")
-        break
+# Quit the driver
+driver.quit()
 
-# Calculate and display consecutive page scrape elapsed time
-loop_scrape_elapsed_time = time.time() - loop_scrape_start_time
-loop_scrape_elapsed_minutes = loop_scrape_elapsed_time // 60
-loop_scrape_elapsed_seconds = loop_scrape_elapsed_time % 60
-loop_scrape_elapsed_milliseconds = (loop_scrape_elapsed_time - int(loop_scrape_elapsed_time)) * 10000
-print(f"Consecutive page scrape elapsed time: {int(loop_scrape_elapsed_minutes)}:{int(loop_scrape_elapsed_seconds)}:{int(loop_scrape_elapsed_milliseconds)}")
+# Completion message
+print("\nSCRAPE COMPLETE...")
+total_time = time.time() - total_loop_start_time
+print(f"Total elapsed time ({desired_scrapes} pages): {format_time(total_time)}")
 
