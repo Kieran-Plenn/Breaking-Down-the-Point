@@ -34,7 +34,7 @@ def format_time(elapsed_time):
     elapsed_minutes = elapsed_time // 60
     elapsed_seconds = elapsed_time % 60
     elapsed_milliseconds = (elapsed_time - int(elapsed_time)) * 10000
-    return f"{int(elapsed_minutes)}:{int(elapsed_seconds)}:{int(elapsed_milliseconds)}"
+    return f"{int(elapsed_minutes):02d}:{int(elapsed_seconds):02d}:{int(elapsed_milliseconds)}"
 
 
 # Tracking elapsed time of initial player list scrape
@@ -79,18 +79,18 @@ scraped_count = 0
 total_loop_start_time = time.time()
 
 # Uncomment to test specific list of players
-'''
+#'''
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
-    list(range(373, 386))        # 1 to 10
+    list(range(373, 386))      # Rank 374 to Rank 386
     #list(range(100, 111)) +    # 100 to 110
     #[499]                # specific indices
 )
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
 csv_filename = 'player_data_test.csv'
-'''
+#'''
 
 # Uncomment to test specific Player
 '''
@@ -103,16 +103,10 @@ csv_filename = 'player_data_test.csv'
 
 # Confirm before running real scrapes
 if not test:
-    confirm = input("NOT A TEST: This will change saved files. Are you sure you want to proceed? (y/n): ")
+    confirm = input("\nNOT A TEST: This will change saved files. Are you sure you want to proceed? (y/n): ")
     if confirm.lower() not in ['y', 'yes']:
         print("Scraping cancelled. Exiting program.")
         exit()
-
-# Point this to your ChromeDriver path
-service = Service("C:\\chromedriver-win64\\chromedriver.exe")
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")  # Optional: Run in headless mode
-driver = webdriver.Chrome(service=service, options=options)
 
 # Now we scrape each page for our desired stats
 for url_total, url in enumerate(player_urls):
@@ -134,7 +128,7 @@ for url_total, url in enumerate(player_urls):
     
     # Sleep to avoid 429 (too many requests) error code and alert if any errors
     time.sleep(4)
-    print("Status code:", initial_response.status_code, " (", url, ")")
+    print(f"\n\nStatus code: {initial_response.status_code} ({url})")
 
     # Extract the text inside the script tag where var fullname is found in the HTML
     script_content = initial_soup.find('script', string=re.compile('var fullname =')).string
@@ -179,6 +173,12 @@ for url_total, url in enumerate(player_urls):
     except Exception as e:
         print(f"[ERROR] Failed to extract peak rank from {url}: {e}")
         player_info['peak_rank'] = 'N/A'
+
+    # Point this to your ChromeDriver path
+    service = Service("C:\\chromedriver-win64\\chromedriver.exe")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # Optional: Run in headless mode
+    driver = webdriver.Chrome(service=service, options=options)
 
     # Navigate the browser to the specified URL
     driver.get(url)
@@ -395,7 +395,13 @@ for url_total, url in enumerate(player_urls):
     # Quick calc
     num_matches_list.sort()
     median_index = len(num_matches_list) // 2
-    median_num_matches = num_matches_list[median_index]
+    try:
+        median_num_matches = num_matches_list[median_index]
+    except IndexError:
+        median_num_matches = 0
+
+    # Quit the driver
+    driver.quit()
 
     # Flatten the all_results data into a list of rows
     flattened_data = []
@@ -454,9 +460,6 @@ for url_total, url in enumerate(player_urls):
     
     # Output info and confirmation message
     print(f"{player_info.get("name")}'s page data appended successfully in time: {format_time(time.time() - player_scrape_start_time)} (missing {len(error_tables)} tables).")
-
-# Quit the driver
-driver.quit()
 
 # Completion message
 print("\nSCRAPE COMPLETE...")
