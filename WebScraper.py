@@ -7,6 +7,7 @@ import requests
 import re
 import time
 import unicodedata
+import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -135,7 +136,7 @@ table_stats = {
 }
 
 # Uncomment to test specific list of players
-#'''
+'''
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
@@ -146,7 +147,7 @@ target_indices = (
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
 csv_filename = 'player_data_test.csv'
-#'''
+'''
 
 # Uncomment to test specific Player
 '''
@@ -167,6 +168,7 @@ else:
     # If we are testing, ignore previously visited pages
     scraped_urls = set()
 
+http_code = int
 # Now we scrape each page for our desired stats
 try:
     for url_total, url in enumerate(player_urls):
@@ -188,7 +190,8 @@ try:
         
         # Sleep to avoid 429 (too many requests) error code and alert if any errors
         time.sleep(4)
-        print(f"\n\nStatus code: {initial_response.status_code} ({url})")
+        http_code = initial_response.status_code
+        print(f"\n\nStatus code: {http_code} ({url})")
 
         # Extract the text inside the script tag where var fullname is found in the HTML
         script_content = initial_soup.find('script', string=re.compile('var fullname =')).string
@@ -488,9 +491,9 @@ except KeyboardInterrupt:
     print("\nINTERRUPTED BY USER — Exiting early...")
     time.sleep(1.5)
 except Exception as e:
-    print(f"\nUNEXPECTED TERMINATION — {type(e).__name__}: {e}")
-    raise  # Optional: comment this out if you don’t want full traceback
-
+    print(f"\nUNEXPECTED TERMINATION — {type(e).__name__}: {e}\n")
+    traceback.print_exc()  # This prints the stack trace in normal white text
+    print(f"Error code: {http_code}")
 finally:
     total_time = time.time() - total_loop_start_time
     print(f"Total elapsed time ({scraped_count}/{desired_scrapes} pages successful): {format_time(total_time)}")
