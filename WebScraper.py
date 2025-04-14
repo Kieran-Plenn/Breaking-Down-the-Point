@@ -170,7 +170,7 @@ for url_total, url in enumerate(player_urls):
     player_scrape_start_time = time.time()
 
     # If we've reached the desired number of scrapes, then stop the loop
-    if url_total >= desired_scrapes:
+    if scraped_count >= desired_scrapes:
         print(f"Successfully scraped {scraped_count} players. Stopping.")
         break
 
