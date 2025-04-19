@@ -8,6 +8,23 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
+def extract_table(table_id):
+    # Wait for the table to be present
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, table_id))
+    )
+    print(f"Table with ID '{table_id}' found!")
+
+    # Get the page source after the table has loaded
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Find and store the table if it exists
+    table = soup.find("table", id=table_id)
+        
+    # Return the extracted table
+    return table
+
 # Point this to your ChromeDriver path
 service = Service("C:\\chromedriver-win64\\chromedriver.exe")
 options = webdriver.ChromeOptions()
@@ -21,26 +38,16 @@ driver.get(url)
 table_ids = [
     "singles-results"
 ]
-counter = 0
+
 # Wait for page to load and try to find each table
 for table_id in table_ids:
     try:
-        # Wait for the table to be present
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, table_id))
-        )
-        print(f"Table with ID '{table_id}' found!")
-
-        # Get the page source after the table has loaded
-        html = driver.page_source
-        soup = BeautifulSoup(html, "html.parser")
-
-        # Find and print the table if it exists
-        table = soup.find("table", id=table_id)
+        # Extract the table's information
+        table = extract_table(table_id)
+        
         if table:
             print(f"Contents of '{table_id}' table:")
             print(table.prettify())
-            counter+=1
         else:
             print(f"'{table_id}' table found but no content.")
 
