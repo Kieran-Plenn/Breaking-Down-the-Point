@@ -14,13 +14,12 @@ options = webdriver.ChromeOptions()
 options.add_argument("--headless")  # Optional: Run in headless mode
 driver = webdriver.Chrome(service=service, options=options)
 
-url = "https://www.tennisabstract.com/cgi-bin/player.cgi?p=NovakDjokovic"  # Replace with desired player
+url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t=2024US_Open"  # Replace with desired player
 driver.get(url)
 
 # Table IDs to check
 table_ids = [
-    "winners-errors", "serve-speed", "pbp-stats", "mcp-serve",
-    "mcp-return", "mcp-rally", "mcp-tactics"
+    "singles-results"
 ]
 counter = 0
 # Wait for page to load and try to find each table
