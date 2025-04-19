@@ -43,6 +43,7 @@ list_scrape_start_time = time.time()
 
 # First let's scrape the page of hyperlinks to players' pages
 player_list_link = "https://tennisabstract.com/reports/atpRankings.html"
+# player_list_link = "https://tennisabstract.com/reports/wtaRankings.html"
 player_list_response = requests.get(player_list_link)
 player_list_soup = BeautifulSoup(player_list_response.content, 'html.parser')
 
@@ -54,10 +55,10 @@ player_urls = [url['href'] for url in urls if 'player' in url['href']]
 print(f"Successfully scraped {len(player_urls)} player url(s) (time: {format_time(time.time() - list_scrape_start_time)})")
 
 # Create a file to save most recently scraped URL as a checkpoint
-checkpoint_file = "scraped_players.txt"
+checkpoint_file = "scraped_players_m.txt"
 
 # Define CSV file path
-csv_filename = 'player_data.csv'
+csv_filename = 'player_data_m.csv'
 
 # Identify if we are testing so we ignore checkpoint_file
 test = False
@@ -136,18 +137,18 @@ table_stats = {
 }
 
 # Uncomment to test specific list of players
-'''
+#'''
 test = True
 # Define your desired indices (can mix ranges and specific values)
 target_indices = (
-    list(range(373, 386))      # Rank 374 to Rank 386
+    list(range(385, 389))      # Rank # + 1 to Rank #
     #list(range(100, 111)) +    # 100 to 110
     #[373]                # specific indices
 )
 player_urls = [player_urls[i] for i in target_indices if i < len(player_urls)]
 desired_scrapes = len(player_urls)
 csv_filename = 'player_data_test.csv'
-'''
+#'''
 
 # Uncomment to test specific Player
 '''
@@ -253,7 +254,7 @@ try:
         
         # Check if page does not contains any desired tables
         matched_tables = table_stats.keys() & table_ids_found
-        if len(matched_tables) <= 1:
+        if len(matched_tables) < len(table_stats.keys()) - 2:  # len(table_stats.keys() - 2 represents two tables are allowed to be missing
             print(f"Skipped {player_info.get("name")}'s page in time: {format_time(time.time() - player_scrape_start_time)} (missing {len(table_stats.keys()) - len(matched_tables)} tables)")
             driver.quit()
             # Add successfully scraped player page to checkpoint list (unless we're testing)
