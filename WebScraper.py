@@ -25,6 +25,11 @@ def extract_table(table_id):
     # Return the extracted table
     return table
 
+# Table IDs to check
+table_ids = [
+    "stat-summaries"
+]
+
 # Point this to your ChromeDriver path
 service = Service("C:\\chromedriver-win64\\chromedriver.exe")
 options = webdriver.ChromeOptions()
@@ -34,17 +39,12 @@ driver = webdriver.Chrome(service=service, options=options)
 url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t=2024US_Open"  # Replace with desired player
 driver.get(url)
 
-# Table IDs to check
-table_ids = [
-    "singles-results"
-]
-
 # Wait for page to load and try to find each table
 for table_id in table_ids:
     try:
         # Extract the table's information
         table = extract_table(table_id)
-        
+
         if table:
             print(f"Contents of '{table_id}' table:")
             print(table.prettify())
