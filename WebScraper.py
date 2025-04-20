@@ -93,8 +93,8 @@ def main():
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
     base_tourney_names = ["US_Open", "Wimbledon", "Australian_Open", "Roland_Garros"]
 
-    start_year = 2000
-    end_year = 2002
+    start_year = 2024
+    end_year = 2024
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
@@ -106,7 +106,6 @@ def main():
             print(f"\n🌐 Scraping {year} {base_tourney_name.replace('_', ' ')}...")
             driver.get(url)
 
-            tournament_name = f"{year}_{base_tourney_name}"
             output_folder = os.path.join("tennis_data", base_tourney_name, str(year))
 
             for table_id in table_ids:
