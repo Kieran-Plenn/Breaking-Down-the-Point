@@ -79,6 +79,45 @@ def scrape_table_to_csv(driver, table_id, output_folder="output"):
         headers, descriptions = parse_table_headers_and_titles(table)
         rows = parse_table_rows(table)
 
+        if table_id == "singles-results":
+            headers.append("WinnerPeakRank")  # Add new column
+
+            peak_rank_cache = {}
+
+            for row in rows:
+                try:
+                    winner_cell = row[0]  # Adjust index if winner isn't at 0
+                    winner_soup = BeautifulSoup(winner_cell, "html.parser")
+                    winner_link = winner_soup.find('a', href=True)
+
+                    if winner_link and "player" in winner_link['href']:
+                        winner_url = "https://www.tennisabstract.com" + winner_link['href']
+                        winner_name = winner_link.text.strip()
+
+                        if winner_url in peak_rank_cache:
+                            peak_rank = peak_rank_cache[winner_url]
+                        else:
+                            driver.get(winner_url)
+                            time.sleep(4)  # Consider tuning this for speed/throttling
+                            profile_soup = BeautifulSoup(driver.page_source, "html.parser")
+                            script_tag = profile_soup.find('script', string=re.compile("var fullname ="))
+
+                            if script_tag:
+                                match = re.search(r"var peakrank = (\d+)", script_tag.string)
+                                peak_rank = match.group(1) if match else "N/A"
+                            else:
+                                peak_rank = "N/A"
+
+                            peak_rank_cache[winner_url] = peak_rank
+                    else:
+                        peak_rank = "N/A"
+
+                    row.append(peak_rank)
+
+                except Exception as e:
+                    print(f"❌ Error extracting winner peak rank for row: {e}")
+                    row.append("N/A")
+
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
@@ -91,10 +130,10 @@ def scrape_table_to_csv(driver, table_id, output_folder="output"):
 def main():
     chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
-    base_tourney_names = ["US_Open", "Wimbledon", "Australian_Open", "Roland_Garros"]
+    base_tourney_names = ["US_Open"]
 
-    start_year = 2024
-    end_year = 2024
+    start_year = 2022
+    end_year = 2022
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
