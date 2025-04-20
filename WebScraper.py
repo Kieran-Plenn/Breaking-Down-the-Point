@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import csv
 import os
 import re
+import time
 from urllib.parse import urlparse, parse_qs
 
 def init_driver(chromedriver_path: str):
@@ -20,11 +21,8 @@ def init_driver(chromedriver_path: str):
     options.add_argument("--disable-dev-shm-usage")
     return webdriver.Chrome(service=service, options=options)
 
-def clean_text(text):
-    return re.sub(r"\s+", " ", text.replace('\xa0', ' ')).strip()
-
 def extract_table(driver, table_id: str):
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 4).until(
         EC.presence_of_element_located((By.ID, table_id))
     )
     print(f"✅ Table with ID '{table_id}' found!")
@@ -37,18 +35,22 @@ def parse_table_headers_and_titles(table):
     descriptions = []
 
     for cell in header_cells:
-        text = clean_text(cell.get_text(strip=True))
-        title = clean_text(cell.get("title", ""))
-        headers.append(text)
-        descriptions.append(title if title else "")  # Blank if no title
+        span = cell.find("span")
+        if span and span.has_attr("title"):
+            headers.append(span.get_text(strip=True))         # Visible label
+            descriptions.append(span["title"].strip())        # Tooltip/description
+        else:
+            headers.append(cell.get_text(strip=True))         # Fallback for no span
+            descriptions.append("")                           # Blank if no title
 
     return headers, descriptions
+
 
 def parse_table_rows(table):
     rows = []
     for tr in table.find("tbody").find_all("tr"):
         cells = tr.find_all(["td", "th"])
-        row = [clean_text(cell.get_text(strip=True)) for cell in cells]
+        row = [(cell.get_text(strip=True)) for cell in cells]
         if row:
             rows.append(row)
     return rows
@@ -80,7 +82,7 @@ def scrape_table_to_csv(driver, table_id, output_folder="output"):
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
-        filename = os.path.join(output_folder, f"{table_id}_with_descriptions.csv")
+        filename = os.path.join(output_folder, f"{table_id}.csv")
         write_to_csv(filename, headers, descriptions, rows)
 
     except Exception as e:
@@ -88,19 +90,31 @@ def scrape_table_to_csv(driver, table_id, output_folder="output"):
 
 def main():
     chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
-    url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t=2023US_Open"
-    table_ids = ["stat-summaries"]
+    base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
+    base_tourney_name = "US_Open"
+
+    start_year = 2000
+    end_year = 2024
+
+    table_ids = ["stat-summaries"]  # Add more table IDs here if needed
 
     driver = init_driver(chromedriver_path)
-    driver.get(url)
 
-    tournament_name = get_tournament_name_from_url(url)
-    output_folder = os.path.join("output", tournament_name)
+    for year in range(start_year, end_year + 1):
+        url = f"{base_url}{year}{base_tourney_name}"
+        print(f"\n🌐 Scraping {year} {base_tourney_name.replace('_', ' ')}...")
+        driver.get(url)
 
-    for table_id in table_ids:
-        scrape_table_to_csv(driver, table_id, output_folder=output_folder)
+        tournament_name = f"{year}_{base_tourney_name}"
+        output_folder = os.path.join("output", tournament_name)
+
+        for table_id in table_ids:
+            scrape_table_to_csv(driver, table_id, output_folder)
+
+        time.sleep(4)
 
     driver.quit()
+
 
 if __name__ == "__main__":
     main()
