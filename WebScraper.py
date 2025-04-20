@@ -96,7 +96,7 @@ def main():
     start_year = 2000
     end_year = 2002
 
-    table_ids = ["stat-summaries"]  # Add more table IDs here if needed
+    table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
     driver = init_driver(chromedriver_path)
 
