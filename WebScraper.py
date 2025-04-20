@@ -91,27 +91,28 @@ def scrape_table_to_csv(driver, table_id, output_folder="output"):
 def main():
     chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
-    base_tourney_name = "US_Open"
+    base_tourney_names = ["US_Open", "Wimbledon", "Australian_Open", "Roland_Garros"]
 
     start_year = 2000
-    end_year = 2024
+    end_year = 2002
 
     table_ids = ["stat-summaries"]  # Add more table IDs here if needed
 
     driver = init_driver(chromedriver_path)
 
-    for year in range(start_year, end_year + 1):
-        url = f"{base_url}{year}{base_tourney_name}"
-        print(f"\n🌐 Scraping {year} {base_tourney_name.replace('_', ' ')}...")
-        driver.get(url)
+    for base_tourney_name in base_tourney_names: 
+        for year in range(start_year, end_year + 1):
+            url = f"{base_url}{year}{base_tourney_name}"
+            print(f"\n🌐 Scraping {year} {base_tourney_name.replace('_', ' ')}...")
+            driver.get(url)
 
-        tournament_name = f"{year}_{base_tourney_name}"
-        output_folder = os.path.join("output", tournament_name)
+            tournament_name = f"{year}_{base_tourney_name}"
+            output_folder = os.path.join("tennis_data", base_tourney_name, str(year))
 
-        for table_id in table_ids:
-            scrape_table_to_csv(driver, table_id, output_folder)
+            for table_id in table_ids:
+                scrape_table_to_csv(driver, table_id, output_folder)
 
-        time.sleep(4)
+            time.sleep(4)
 
     driver.quit()
 
