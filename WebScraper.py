@@ -1,131 +1,106 @@
 # Breaking Down the Point
 # Author: Kieran Plenn
 
-import csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import csv
+import os
+import re
+from urllib.parse import urlparse, parse_qs
 
-def extract_table(driver, table_id):
-    """Extracts and returns a BeautifulSoup object of a table"""
+def init_driver(chromedriver_path: str):
+    service = Service(chromedriver_path)
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    return webdriver.Chrome(service=service, options=options)
+
+def clean_text(text):
+    return re.sub(r"\s+", " ", text.replace('\xa0', ' ')).strip()
+
+def extract_table(driver, table_id: str):
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, table_id))
     )
-    print(f"Table with ID '{table_id}' found!")
+    print(f"✅ Table with ID '{table_id}' found!")
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    return soup.find("table", id=table_id)
 
-    # Get page source and parse
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    
-    # Find the table
-    table = soup.find("table", id=table_id)
-    return table
+def parse_table_headers_and_titles(table):
+    header_cells = table.find("thead").find_all("th")
+    headers = []
+    descriptions = []
 
-def extract_headers(table):
-    """Extracts headers (both text and titles) from the table"""
-    header_row = table.find("tr")
-    headers = header_row.find_all("th")
-    
-    header_text = []
-    header_titles = []
-    
-    for header in headers:
-        # Clean the header text
-        header_text.append(header.get_text(strip=True))
-        # Get the title attribute (if exists) for header description
-        title = header.get("title", "")
-        header_titles.append(title)
-    
-    return header_text, header_titles
+    for cell in header_cells:
+        text = clean_text(cell.get_text(strip=True))
+        title = clean_text(cell.get("title", ""))
+        headers.append(text)
+        descriptions.append(title if title else "")  # Blank if no title
 
-def extract_player_stats(table):
-    """Extract player stats from a given table, return as a dictionary."""
-    players_data = {}
-    rows = table.find_all("tr")[1:]  # Skip header row
-    for row in rows:
-        columns = row.find_all("td")
-        if len(columns) < 2:  # Skip if row is too short (invalid data)
-            continue
-        
-        player_name = columns[0].get_text(strip=True)
-        stats = [col.get_text(strip=True) for col in columns[1:]]
-        
-        players_data[player_name] = stats
-    
-    return players_data
+    return headers, descriptions
 
-def save_to_csv(file_name, header, rows):
-    """Save data to CSV file."""
-    with open(file_name, mode="w", newline="", encoding="utf-8") as file:
+def parse_table_rows(table):
+    rows = []
+    for tr in table.find("tbody").find_all("tr"):
+        cells = tr.find_all(["td", "th"])
+        row = [clean_text(cell.get_text(strip=True)) for cell in cells]
+        if row:
+            rows.append(row)
+    return rows
+
+def write_to_csv(filename, headers, descriptions, rows):
+    with open(filename, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(header)  # Write the header
-        writer.writerows(rows)   # Write the data rows
+        writer.writerow(headers)       # First row: column names
+        writer.writerow(descriptions)  # Second row: tooltips (titles)
+        writer.writerows(rows)         # Rest: data rows
+    print(f"📁 CSV written to '{filename}'")
 
-def setup_driver():
-    """Set up and return the Selenium WebDriver."""
-    service = Service("C:\\chromedriver-win64\\chromedriver.exe")  # Make sure to adjust path
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run in headless mode
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
+def get_tournament_name_from_url(url: str) -> str:
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query)
+    tourney_param = query.get("t", ["unknown_tournament"])[0]
+    return tourney_param
 
-def scrape_tournament_data(url, table_ids):
-    """Scrape tournament data from multiple tables and return the combined stats."""
-    driver = setup_driver()
-    driver.get(url)
+def scrape_table_to_csv(driver, table_id, output_folder="output"):
+    try:
+        table = extract_table(driver, table_id)
+        if not table:
+            print(f"⚠️ Table '{table_id}' not found.")
+            return
 
-    all_player_data = {}  # Dictionary to hold all player stats across tables
-    all_headers = []      # To hold all headers dynamically
+        headers, descriptions = parse_table_headers_and_titles(table)
+        rows = parse_table_rows(table)
 
-    # Loop through each table
-    for table_id in table_ids:
-        try:
-            # Extract the table content
-            table = extract_table(driver, table_id)
-            
-            if table:
-                # Extract header text and titles
-                header_text, header_titles = extract_headers(table)
-                
-                # Combine headers (header_text with titles in parentheses)
-                combined_headers = [f"{text} ({title})" if title else text for text, title in zip(header_text, header_titles)]
-                
-                # Store the headers if it's the first table
-                if not all_headers:
-                    all_headers = ["Player"] + combined_headers  # Include "Player" as the first column
-                
-                # Extract player stats from the table
-                players_stats = extract_player_stats(table)
-                
-                # Merge stats with previous data (combine on player name)
-                for player, stats in players_stats.items():
-                    if player not in all_player_data:
-                        all_player_data[player] = []
-                    all_player_data[player].extend(stats)  # Add new stats to the player
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
 
-        except Exception as e:
-            print(f"Failed to process table '{table_id}': {e}")
+        filename = os.path.join(output_folder, f"{table_id}_with_descriptions.csv")
+        write_to_csv(filename, headers, descriptions, rows)
 
-    driver.quit()
-    return all_player_data, all_headers
+    except Exception as e:
+        print(f"❌ Error processing table '{table_id}': {e}")
 
 def main():
-    url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t=2024US_Open"  # Replace with your tournament URL
-    table_ids = ["stat-summaries"]  # Replace with your actual table IDs
+    chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
+    url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t=2023US_Open"
+    table_ids = ["stat-summaries"]
 
-    # Scrape the data
-    all_player_data, all_headers = scrape_tournament_data(url, table_ids)
+    driver = init_driver(chromedriver_path)
+    driver.get(url)
 
-    # Combine all player stats into rows for CSV
-    rows = []
-    for player, stats in all_player_data.items():
-        rows.append([player] + stats)  # Combine player name with their stats
+    tournament_name = get_tournament_name_from_url(url)
+    output_folder = os.path.join("output", tournament_name)
 
-    # Save combined data to CSV
-    save_to_csv("2024_us_open_stats.csv", all_headers, rows)
+    for table_id in table_ids:
+        scrape_table_to_csv(driver, table_id, output_folder=output_folder)
+
+    driver.quit()
 
 if __name__ == "__main__":
     main()
