@@ -102,8 +102,8 @@ def classify_elite(df, elite_cutoff=10):
 
 def categorize_and_classify(df):
     # Custom bins as per your request
-    bins = [0, 3, 10, 20, 50, df['PeakRank'].max() + 1]
-    labels = ['1-3', '4-10', '11-20', '21-50', '51+']
+    bins = [0, 3, 20, 50, df['PeakRank'].max() + 1]
+    labels = ['1-3', '4-20', '21-50', '51+']
     df['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
     df = df.dropna(subset=['PeakRankCategory', 'M'])  # Drop rows with missing categories or M value
 
