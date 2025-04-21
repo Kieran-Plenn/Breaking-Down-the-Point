@@ -162,10 +162,10 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache
 def main():
     chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
-    base_tourney_names = ["US_Open"]
+    base_tourney_names = ["US_Open", "Australian_Open", "Roland_Garros", "Wimbledon"]
 
-    start_year = 2010
-    end_year = 2010
+    start_year = 2000
+    end_year = 2024
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
