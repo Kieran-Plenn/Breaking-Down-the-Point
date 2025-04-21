@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, accuracy_score, classification_report, precision_score, recall_score, f1_score
+from sklearn.metrics import (
+    mean_squared_error, accuracy_score, classification_report,
+    precision_score, recall_score, f1_score
+)
 from sklearn.ensemble import RandomForestClassifier
 
 def load_and_clean_data(filepath):
@@ -38,7 +41,7 @@ def exploratory_plots(df):
     plt.ylabel('PeakRank')
     plt.show()
 
-def linear_regression_model(df):
+def run_regression(df):
     scaler = StandardScaler()
     X = scaler.fit_transform(df.drop(columns=['Player', 'PeakRank']))
     y = df['PeakRank']
@@ -50,10 +53,10 @@ def linear_regression_model(df):
     mse = mean_squared_error(y_test, y_pred)
     print(f"Linear Regression MSE: {mse:.4f}")
 
-def binary_classification_elite(df):
+def classify_elite(df, elite_cutoff=10):
     scaler = StandardScaler()
     X = scaler.fit_transform(df.drop(columns=['Player', 'PeakRank']))
-    y = (df['PeakRank'] <= 10).astype(int)
+    y = (df['PeakRank'] <= elite_cutoff).astype(int)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -74,12 +77,12 @@ def binary_classification_elite(df):
     plt.title("Feature Importance from Random Forest")
     plt.show()
 
-def multiclass_classification_quantiles(df, q=10):
-    labels = [f'Tier {i+1}' for i in range(q)]
-    df['PeakRankCategory'], bins = pd.qcut(df['weighted_peakrank'], q=q, labels=labels, retbins=True, duplicates='drop')
-    df = df.dropna(subset=['PeakRankCategory', 'M'])
+def categorize_and_classify(df):
+    bins = [0, 3, 10, 20, 50, df['PeakRank'].max() + 1]
+    labels = ['Elite', 'Semi Elite', 'Top 20', 'Top 50', 'Other']
+    df['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
 
-    X = pd.get_dummies(df.drop(columns=['PeakRank', 'PeakRankCategory']))
+    X = pd.get_dummies(df.drop(columns=['Player', 'PeakRank', 'PeakRankCategory']))
     y = df['PeakRankCategory']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -93,24 +96,23 @@ def multiclass_classification_quantiles(df, q=10):
     importances = model.feature_importances_
     imp_df = pd.DataFrame({'Feature': X.columns, 'Importance': importances}).sort_values(by='Importance', ascending=False)
     print("Feature Importances:\n", imp_df)
-    print("Quantile bins:", bins)
     print("Player count per category:\n", df['PeakRankCategory'].value_counts().sort_index())
 
 def main():
     filepath = 'aggregated_us_open_stats.csv'
     df = load_and_clean_data(filepath)
-    
+
     plot_correlation_heatmap(df)
     exploratory_plots(df)
-    
+
     print("\n--- Linear Regression ---")
-    linear_regression_model(df)
-    
+    run_regression(df)
+
     print("\n--- Binary Classification: Elite vs Non-Elite ---")
-    binary_classification_elite(df)
-    
-    print("\n--- Multiclass Classification (Quantiles) ---")
-    multiclass_classification_quantiles(df)
+    classify_elite(df)
+
+    print("\n--- Multiclass Classification (Custom Categories) ---")
+    categorize_and_classify(df)
 
 if __name__ == "__main__":
     main()
