@@ -15,29 +15,44 @@ def load_and_clean_data(filepath):
     # Load the CSV file
     df = pd.read_csv(filepath)
     
-    # Print initial shape to check columns and rows
     print(f"Initial data shape: {df.shape}")
     
-    # Remove columns with 'Unnamed' in their name (these are likely irrelevant)
+    # Remove columns with 'Unnamed' in their name
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     
-    # Drop rows where 'PeakRank' is missing (ignores other columns)
+    # Drop rows where 'PeakRank' is missing
     df = df.dropna(subset=['PeakRank'])
     
-    # Remove completely empty rows (if any remain after cleaning)
+    # Remove completely empty rows
     df = df.dropna(how='all')
     
-    # Check for missing values and print the cleaned shape
-    missing_values_after = df.isnull().sum()
-    print(f"Missing values after cleaning:\n{missing_values_after}")
+    print(f"Missing values after cleaning:\n{df.isnull().sum()}")
     print(f"Data shape after dropping rows with missing PeakRank and empty rows: {df.shape}")
     
-    # Optional: Recalculate any features or cleanup here
+    # Create weighted peakrank
     df['weighted_peakrank'] = df['PeakRank'] / df['M']
     
+    # -------------------------------
+    # Normalize selected columns
+    # -------------------------------
+
+    # Columns assumed to be percentages (values from 0-1 range)
+    percent_cols = ['Hld%', 'Brk%', 'Ace%', 'DF%', '1stIn', '1st%', '2nd%', 'SPW', 'BPSvd%', 'RPW', 'BPConv%', 'TPW']
+    
+    # Whole number or continuous value columns
+    numeric_cols = ['A', 'DF', 'BPFaced', 'BPEarned', 'DR']  # Add more if relevant
+    
+    # Combine for normalization
+    cols_to_normalize = percent_cols + numeric_cols
+    
+    # Only normalize if the columns exist in the DataFrame
+    cols_to_normalize = [col for col in cols_to_normalize if col in df.columns]
+    
+    # StandardScaler normalization
+    scaler = StandardScaler()
+    df[cols_to_normalize] = scaler.fit_transform(df[cols_to_normalize])
+    
     return df
-
-
 
 
 def plot_correlation_heatmap(df):
@@ -126,7 +141,6 @@ def categorize_and_classify(df):
 def main():
     filepath = 'aggregated_us_open_stats.csv'
     df = load_and_clean_data(filepath)
-    print(df.shape)
 
     plot_correlation_heatmap(df)
     exploratory_plots(df)
