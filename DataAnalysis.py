@@ -78,9 +78,11 @@ def classify_elite(df, elite_cutoff=10):
     plt.show()
 
 def categorize_and_classify(df):
+    # Custom bins as per your request
     bins = [0, 3, 10, 20, 50, df['PeakRank'].max() + 1]
-    labels = ['Elite', 'Semi Elite', 'Top 20', 'Top 50', 'Other']
+    labels = ['1-3', '4-10', '11-20', '21-50', '51+']
     df['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
+    df = df.dropna(subset=['PeakRankCategory', 'M'])  # Drop rows with missing categories or M value
 
     X = pd.get_dummies(df.drop(columns=['Player', 'PeakRank', 'PeakRankCategory']))
     y = df['PeakRankCategory']
@@ -101,6 +103,7 @@ def categorize_and_classify(df):
 def main():
     filepath = 'aggregated_us_open_stats.csv'
     df = load_and_clean_data(filepath)
+    print(df.shape)
 
     plot_correlation_heatmap(df)
     exploratory_plots(df)
