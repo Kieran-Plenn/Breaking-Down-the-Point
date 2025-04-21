@@ -180,8 +180,8 @@ def main():
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
     base_tourney_names = ["US_Open"]
 
-    start_year = 2021
-    end_year = 2021
+    start_year = 2020
+    end_year = 2020
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
