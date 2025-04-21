@@ -103,14 +103,23 @@ def classify_elite(df, elite_cutoff=10):
 
 
 def categorize_and_classify(df):
-    bins = [0, 3, 20, 50, df['weighted_peakrank'].max() + 1]
-    labels = ['1-3', '4-20', '21-50', '51+']
-    df['PeakRankCategory'] = pd.cut(df['weighted_peakrank'], bins=bins, labels=labels, right=False)
-    df = df.dropna(subset=['PeakRankCategory', 'M'])
+    # Get the range of the weighted_peakrank
+    min_val = df['weighted_peakrank'].min()
+    max_val = df['weighted_peakrank'].max()
+    print("MIN: ", min_val)
+    print("MAX: ", max_val)
 
-    exclude_cols = df.attrs['exclude_cols'] + ['PeakRankCategory']
+    # Create more dynamic bins based on the min and max values of weighted_peakrank
+    bins = [min_val, .5, 3, 10, 30, max_val]  # Adjust this as needed based on the range
+    labels = ['Top min-0.5', 'Top 0.5-3', 'Top 3-10', 'Top 10-30', '30+']  # Adjust these labels as needed
+    df['WeightedPeakRankCategory'] = pd.cut(df['weighted_peakrank'], bins=bins, labels=labels, right=False)
+
+    # Drop any rows where the category is missing due to NaNs in the data
+    df = df.dropna(subset=['WeightedPeakRankCategory', 'M'])
+
+    exclude_cols = df.attrs['exclude_cols'] + ['WeightedPeakRankCategory']
     X = pd.get_dummies(df.drop(columns=exclude_cols))
-    y = df['PeakRankCategory']
+    y = df['WeightedPeakRankCategory']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = RandomForestClassifier(random_state=42)
@@ -123,7 +132,7 @@ def categorize_and_classify(df):
     importances = model.feature_importances_
     imp_df = pd.DataFrame({'Feature': X.columns, 'Importance': importances}).sort_values(by='Importance', ascending=False)
     print("Feature Importances:\n", imp_df)
-    print("Player count per category:\n", df['PeakRankCategory'].value_counts().sort_index())
+    print("Player count per category:\n", df['WeightedPeakRankCategory'].value_counts().sort_index())
 
 
 def main():
