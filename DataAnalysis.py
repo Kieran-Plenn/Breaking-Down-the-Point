@@ -12,10 +12,33 @@ from sklearn.metrics import (
 from sklearn.ensemble import RandomForestClassifier
 
 def load_and_clean_data(filepath):
+    # Load the CSV file
     df = pd.read_csv(filepath)
-    df = df.dropna()
+    
+    # Print initial shape to check columns and rows
+    print(f"Initial data shape: {df.shape}")
+    
+    # Remove columns with 'Unnamed' in their name (these are likely irrelevant)
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    
+    # Drop rows where 'PeakRank' is missing (ignores other columns)
+    df = df.dropna(subset=['PeakRank'])
+    
+    # Remove completely empty rows (if any remain after cleaning)
+    df = df.dropna(how='all')
+    
+    # Check for missing values and print the cleaned shape
+    missing_values_after = df.isnull().sum()
+    print(f"Missing values after cleaning:\n{missing_values_after}")
+    print(f"Data shape after dropping rows with missing PeakRank and empty rows: {df.shape}")
+    
+    # Optional: Recalculate any features or cleanup here
     df['weighted_peakrank'] = df['PeakRank'] / df['M']
+    
     return df
+
+
+
 
 def plot_correlation_heatmap(df):
     df_numeric = df.select_dtypes(include=['number'])
