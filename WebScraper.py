@@ -11,8 +11,11 @@ import csv
 import os
 import re
 import time
+import json
 from urllib.parse import urlparse, parse_qs
 
+
+# Initialize the Chrome driver
 def init_driver(chromedriver_path: str):
     service = Service(chromedriver_path)
     options = webdriver.ChromeOptions()
@@ -21,6 +24,8 @@ def init_driver(chromedriver_path: str):
     options.add_argument("--disable-dev-shm-usage")
     return webdriver.Chrome(service=service, options=options)
 
+
+# Extract table from page
 def extract_table(driver, table_id: str):
     WebDriverWait(driver, 4).until(
         EC.presence_of_element_located((By.ID, table_id))
@@ -29,6 +34,8 @@ def extract_table(driver, table_id: str):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     return soup.find("table", id=table_id)
 
+
+# Parse table headers and titles
 def parse_table_headers_and_titles(table):
     header_cells = table.find("thead").find_all("th")
     headers = []
@@ -46,6 +53,7 @@ def parse_table_headers_and_titles(table):
     return headers, descriptions
 
 
+# Parse table rows
 def parse_table_rows(table):
     rows = []
     for tr in table.find("tbody").find_all("tr"):
@@ -55,6 +63,8 @@ def parse_table_rows(table):
             rows.append(row)
     return rows
 
+
+# Write the data to a CSV file
 def write_to_csv(filename, headers, descriptions, rows):
     with open(filename, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
@@ -63,13 +73,31 @@ def write_to_csv(filename, headers, descriptions, rows):
         writer.writerows(rows)         # Rest: data rows
     print(f"📁 CSV written to '{filename}'")
 
+
+# Get tournament name from URL
 def get_tournament_name_from_url(url: str) -> str:
     parsed = urlparse(url)
     query = parse_qs(parsed.query)
     tourney_param = query.get("t", ["unknown_tournament"])[0]
     return tourney_param
 
-def scrape_table_to_csv(driver, tournament_url, output_dir, table_id):
+
+# Cache for storing peak ranks across all tournaments
+def load_rank_cache(filename='rank_cache.json'):
+    if os.path.exists(filename):
+        with open(filename, 'r') as file:
+            return json.load(file)
+    return {}
+
+
+def save_rank_cache(rank_cache, filename='rank_cache.json'):
+    with open(filename, 'w') as file:
+        json.dump(rank_cache, file)
+    print("🗄️ Rank cache saved!")
+
+
+# Scrape a table from the tournament and save it to a CSV
+def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache):
     driver.get(tournament_url)
     soup = BeautifulSoup(driver.page_source, "html.parser")
 
@@ -101,13 +129,23 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id):
                     full_url = player_url if player_url.startswith("http") else "https://www.tennisabstract.com" + player_url
 
                     try:
-                        driver.get(full_url)
-                        time.sleep(4)
-                        player_soup = BeautifulSoup(driver.page_source, "html.parser")
-                        script_tag = player_soup.find("script", string=re.compile("var fullname ="))
-                        if script_tag:
-                            match = re.search(r"var peakrank = (\d+)", script_tag.string)
-                            winner_peak_rank = match.group(1) if match else "N/A"
+                        # Check if the player's peak rank is in cache
+                        player_name = winner_link_tag.get_text(strip=True)
+                        if player_name in rank_cache:
+                            winner_peak_rank = rank_cache[player_name]
+                            print(f"🚀 Using cached peak rank for {player_name}")
+                        else:
+                            driver.get(full_url)
+                            time.sleep(4)
+                            player_soup = BeautifulSoup(driver.page_source, "html.parser")
+                            script_tag = player_soup.find("script", string=re.compile("var fullname ="))
+                            if script_tag:
+                                match = re.search(r"var peakrank = (\d+)", script_tag.string)
+                                winner_peak_rank = match.group(1) if match else "N/A"
+
+                            # Save the player's peak rank in the cache
+                            rank_cache[player_name] = winner_peak_rank
+
                     except Exception as e:
                         print(f"[ERROR] Failed to get peak rank for {full_url}: {e}")
 
@@ -135,17 +173,22 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id):
 
     print(f"📁 CSV written to '{output_file}'")
 
+
+# Main function to drive the scraping
 def main():
     chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
     base_tourney_names = ["US_Open"]
 
-    start_year = 2022
-    end_year = 2022
+    start_year = 2021
+    end_year = 2021
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
     driver = init_driver(chromedriver_path)
+
+    # Load cached peak ranks if available
+    rank_cache = load_rank_cache()
 
     for base_tourney_name in base_tourney_names: 
         for year in range(start_year, end_year + 1):
@@ -156,9 +199,12 @@ def main():
             output_folder = os.path.join("tennis_data", base_tourney_name, str(year))
 
             for table_id in table_ids:
-                scrape_table_to_csv(driver, url, output_folder, table_id)
+                scrape_table_to_csv(driver, url, output_folder, table_id, rank_cache)
 
             time.sleep(4)
+
+    # Save the rank cache for the next run
+    save_rank_cache(rank_cache)
 
     driver.quit()
 
