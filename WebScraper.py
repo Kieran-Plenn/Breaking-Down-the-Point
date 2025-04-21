@@ -152,8 +152,8 @@ def main():
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
     base_tourney_names = ["US_Open"]
 
-    start_year = 2024
-    end_year = 2024
+    start_year = 2000
+    end_year = 2023
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
@@ -175,8 +175,8 @@ def main():
 
             time.sleep(4)
 
-    # Save the rank cache for the next run
-    save_rank_cache(rank_cache)
+        # Save the rank cache for the next run
+        save_rank_cache(rank_cache)
 
     driver.quit()
 
