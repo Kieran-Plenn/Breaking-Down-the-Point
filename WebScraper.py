@@ -25,16 +25,6 @@ def init_driver(chromedriver_path: str):
     return webdriver.Chrome(service=service, options=options)
 
 
-# Extract table from page
-def extract_table(driver, table_id: str):
-    WebDriverWait(driver, 4).until(
-        EC.presence_of_element_located((By.ID, table_id))
-    )
-    print(f"✅ Table with ID '{table_id}' found!")
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    return soup.find("table", id=table_id)
-
-
 # Parse table headers and titles
 def parse_table_headers_and_titles(table):
     header_cells = table.find("thead").find_all("th")
@@ -62,24 +52,6 @@ def parse_table_rows(table):
         if row:
             rows.append(row)
     return rows
-
-
-# Write the data to a CSV file
-def write_to_csv(filename, headers, descriptions, rows):
-    with open(filename, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(headers)       # First row: column names
-        writer.writerow(descriptions)  # Second row: tooltips (titles)
-        writer.writerows(rows)         # Rest: data rows
-    print(f"📁 CSV written to '{filename}'")
-
-
-# Get tournament name from URL
-def get_tournament_name_from_url(url: str) -> str:
-    parsed = urlparse(url)
-    query = parse_qs(parsed.query)
-    tourney_param = query.get("t", ["unknown_tournament"])[0]
-    return tourney_param
 
 
 # Cache for storing peak ranks across all tournaments
@@ -180,8 +152,8 @@ def main():
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
     base_tourney_names = ["US_Open"]
 
-    start_year = 2020
-    end_year = 2020
+    start_year = 2024
+    end_year = 2024
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
