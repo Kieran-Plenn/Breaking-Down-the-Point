@@ -3,6 +3,7 @@ import time
 import csv
 import json
 import logging
+import random
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -80,7 +81,7 @@ def extract_peakrank(driver, player_name):
 
     try:
         driver.get(full_url)
-        time.sleep(4)  # Let the page load
+        time.sleep(4)  # Be respectful to the server
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
 
@@ -108,6 +109,7 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache
         return  # Skip if file already exists
 
     driver.get(tournament_url)
+    time.sleep(4)  # Be respectful to the server
     soup = BeautifulSoup(driver.page_source, "html.parser")
 
     table = soup.find("table", id=table_id)
@@ -137,16 +139,16 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache
                 if winner_link_tag:
                     player_name = winner_link_tag.get_text(strip=True)
 
-                    # Use cached peak rank if available
+                    # Use cached value if available
                     if player_name in rank_cache:
                         winner_peak_rank = rank_cache[player_name]
-                        logging.info(f"Using cached peak rank for {player_name}")
+                        if random.random() < 0.01:  # Log ~1% of cache hits
+                            logging.info(f"Using cached peak rank for {player_name}")
                     else:
-                        # Extract peak rank directly using the new function
                         winner_peak_rank = extract_peakrank(driver, player_name)
-
-                        # Save the player's peak rank in the cache
                         rank_cache[player_name] = winner_peak_rank
+                        logging.info(f"Fetched new peak rank for {player_name}: {winner_peak_rank}")
+
 
             # Extract plain text for the row and append peak rank
             row_values = [cell.get_text(strip=True) for cell in cells]
@@ -204,8 +206,6 @@ def main():
 
             for table_id in table_ids:
                 scrape_table_to_csv(driver, url, output_folder, table_id, rank_cache)
-
-            time.sleep(4)  # Be respectful to the server
 
             # Save the rank cache for the next run
             save_rank_cache(rank_cache)

@@ -1,0 +1,130 @@
+Rd,wRk,,,lRk,,Score,DR,W: A%,1stIn,1st%,2nd%,BPSvd,L: A%,1stIn,1st%,2nd%,BPSvd,Time,WinnerPeakRank
+Round,Ranking of winning player,,,Ranking of losing player,,,"Dominance Ratio: % of return points won
+divided by % of serve points lost.",Ace rate (winner),First serve percentage,First serve points won,Second serve points won,Break point opportunities saved,Ace rate (loser),First serve percentage,First serve points won,Second serve points won,Break point opportunities saved,,Winner's peak ATP rank
+F,1,(1)Novak Djokovic[SRB] [yr|ev],d.,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],6-7(6) 2-6 6-3 6-2 6-4,1.32,3.7%,67.9%,78.0%,53.5%,5/8,7.9%,61.6%,67.0%,50.0%,11/16,4:11,1
+SF,1,(1)Novak Djokovic[SRB] [yr|ev],d.,3,(3)Rafael Nadal[ESP] [yr|ev],3-6 6-3 7-6(4) 6-2,1.17,4.5%,63.9%,64.7%,50.0%,10/16,4.5%,64.7%,59.3%,40.4%,14/22,4:11,1
+SF,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],d.,6,(6)Alexander Zverev[GER] [yr|ev],6-3 6-3 4-6 4-6 6-3,1.13,5.8%,68.1%,75.5%,52.3%,3/6,7.7%,69.7%,74.7%,39.5%,9/14,3:37,3
+QF,1,(1)Novak Djokovic[SRB] [yr|ev],d.,9,(9)Matteo Berrettini[ITA] [yr|ev],6-3 6-2 6-7(5) 7-5,1.47,7.6%,69.7%,77.2%,65.0%,3/3,7.6%,65.3%,71.3%,42.0%,5/9,3:28,1
+QF,3,(3)Rafael Nadal[ESP] [yr|ev],d.,10,(10)Diego Schwartzman[ARG] [yr|ev],6-3 4-6 6-4 6-0,1.60,6.6%,65.9%,73.3%,67.7%,1/4,3.2%,62.8%,59.3%,45.7%,7/14,2:45,1
+QF,6,(6)Alexander Zverev[GER] [yr|ev],d.,46,Alejandro Davidovich Fokina[ESP] [yr|ev],6-4 6-1 6-1,1.83,4.8%,54.8%,76.5%,57.1%,3/6,0.0%,60.3%,47.7%,31.0%,6/15,1:36,2
+QF,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],d.,2,(2)Daniil Medvedev[RUS] [yr|ev],6-3 7-6(3) 7-5,1.52,2.9%,64.7%,72.7%,75.0%,6/8,4.7%,67.3%,59.7%,60.0%,3/7,2:19,3
+R16,1,(1)Novak Djokovic[SRB] [yr|ev],d.,76,Lorenzo Musetti[ITA] [yr|ev],6-7(7) 6-7(2) 6-1 6-0 4-0 RET,1.57,8.3%,70.5%,75.3%,53.8%,2/4,0.8%,62.0%,50.7%,52.2%,0/9,3:27,1
+R16,9,(9)Matteo Berrettini[ITA] [yr|ev],d.,8,(8)Roger Federer[SUI] [yr|ev],W/O,,,,,,,,,,,,,6
+R16,3,(3)Rafael Nadal[ESP] [yr|ev],d.,19,(18)Jannik Sinner[ITA] [yr|ev],7-5 6-3 6-0,1.69,4.8%,57.8%,81.3%,42.9%,3/7,0.0%,65.8%,42.0%,38.5%,5/14,2:17,1
+R16,10,(10)Diego Schwartzman[ARG] [yr|ev],d.,42,Jan Lennard Struff[GER] [yr|ev],7-6(9) 6-4 7-5,1.10,0.0%,73.1%,60.0%,48.6%,8/14,9.6%,53.3%,63.9%,39.7%,7/15,3:02,8
+R16,6,(6)Alexander Zverev[GER] [yr|ev],d.,49,Kei Nishikori[JPN] [yr|ev],6-4 6-1 6-1,1.79,7.6%,71.2%,68.1%,68.4%,2/4,0.0%,60.2%,39.6%,48.6%,3/11,1:54,2
+R16,46,Alejandro Davidovich Fokina[ESP] [yr|ev],d.,51,Federico Delbonis[ARG] [yr|ev],6-4 6-4 4-6 6-4,1.15,1.8%,65.5%,70.3%,48.7%,7/12,0.8%,61.2%,64.6%,46.0%,9/16,2:56,21
+R16,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],d.,12,(12)Pablo Carreno Busta[ESP] [yr|ev],6-3 6-2 7-5,1.41,6.3%,66.3%,74.6%,59.4%,5/6,1.2%,73.3%,61.9%,43.5%,7/12,2:07,3
+R16,2,(2)Daniil Medvedev[RUS] [yr|ev],d.,23,(22)Cristian Garin[CHI] [yr|ev],6-2 6-1 7-5,1.73,17.9%,56.4%,86.4%,52.9%,1/2,0.0%,64.1%,55.9%,42.4%,5/11,2:04,1
+R32,1,(1)Novak Djokovic[SRB] [yr|ev],d.,93,Ricardas Berankis[LTU] [yr|ev],6-1 6-4 6-1,1.94,7.5%,62.7%,88.1%,52.0%,0/0,1.3%,70.7%,58.5%,31.8%,3/9,1:32,1
+R32,76,Lorenzo Musetti[ITA] [yr|ev],d.,83,Marco Cecchinato[ITA] [yr|ev],3-6 6-4 6-3 3-6 6-3,0.99,1.4%,70.6%,65.3%,59.5%,7/11,0.8%,78.9%,66.7%,53.6%,8/13,3:07,11
+R32,9,(9)Matteo Berrettini[ITA] [yr|ev],d.,91,Soon Woo Kwon[KOR] [yr|ev],7-6(6) 6-3 6-4,1.61,25.8%,69.7%,83.9%,59.3%,0/0,1.0%,58.1%,72.1%,47.7%,8/10,2:11,6
+R32,8,(8)Roger Federer[SUI] [yr|ev],d.,59,Dominik Koepfer[GER] [yr|ev],7-6(5) 6-7(3) 7-6(4) 7-5,1.02,3.8%,63.9%,68.3%,57.9%,2/6,6.8%,59.0%,65.3%,62.1%,9/14,3:35,1
+R32,3,(3)Rafael Nadal[ESP] [yr|ev],d.,45,Cameron Norrie[GBR] [yr|ev],6-3 6-3 6-3,1.59,3.9%,61.8%,78.7%,55.2%,1/3,2.5%,59.3%,56.3%,45.5%,6/12,2:07,1
+R32,19,(18)Jannik Sinner[ITA] [yr|ev],d.,105,Mikael Ymer[SWE] [yr|ev],6-1 7-5 6-3,1.50,5.4%,56.5%,80.8%,52.5%,10/11,0.0%,67.0%,59.2%,40.0%,10/16,2:22,1
+R32,10,(10)Diego Schwartzman[ARG] [yr|ev],d.,132,Philipp Kohlschreiber[GER] [yr|ev],6-4 6-2 6-1,1.91,0.0%,67.2%,76.7%,61.9%,1/2,2.2%,63.7%,48.3%,42.4%,6/13,2:02,8
+R32,42,Jan Lennard Struff[GER] [yr|ev],d.,97,(Q)Carlos Alcaraz[ESP] [yr|ev],6-4 7-6(3) 6-2,1.32,10.6%,44.7%,83.3%,51.9%,5/8,3.0%,59.0%,52.5%,58.5%,5/11,2:16,21
+R32,6,(6)Alexander Zverev[GER] [yr|ev],d.,55,Laslo Djere[SRB] [yr|ev],6-2 7-5 6-2,1.61,4.9%,70.7%,72.4%,62.5%,3/5,2.8%,56.6%,61.7%,37.0%,3/10,2:08,2
+R32,49,Kei Nishikori[JPN] [yr|ev],d.,150,(Q)Henri Laaksonen[SUI] [yr|ev],7-5 0-0 RET,1.33,3.2%,64.5%,70.0%,54.5%,0/1,3.5%,57.9%,66.7%,33.3%,8/10,0:58,4
+R32,46,Alejandro Davidovich Fokina[ESP] [yr|ev],d.,16,(15)Casper Ruud[NOR] [yr|ev],7-6(3) 2-6 7-6(6) 0-6 7-5,0.87,1.0%,67.9%,63.9%,38.1%,12/20,3.6%,64.2%,63.2%,57.6%,10/14,4:35,21
+R32,51,Federico Delbonis[ARG] [yr|ev],d.,29,(27)Fabio Fognini[ITA] [yr|ev],6-4 6-1 6-3,1.71,3.9%,71.1%,77.8%,59.1%,4/5,2.8%,70.4%,63.2%,28.1%,8/14,2:06,33
+R32,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],d.,34,(31)John Isner[USA] [yr|ev],5-7 6-3 7-6(3) 6-1,1.29,6.7%,59.7%,85.9%,60.4%,3/4,17.1%,66.7%,77.0%,51.4%,4/7,2:38,3
+R32,12,(12)Pablo Carreno Busta[ESP] [yr|ev],d.,88,Steve Johnson[USA] [yr|ev],6-4 6-4 6-2,1.32,5.4%,71.0%,69.7%,59.3%,5/6,8.8%,57.1%,69.2%,38.5%,4/9,2:02,10
+R32,23,(22)Cristian Garin[CHI] [yr|ev],d.,84,Marcos Giron[USA] [yr|ev],6-1 5-7 6-2 6-2,1.36,1.9%,65.7%,69.6%,52.8%,5/8,5.3%,55.3%,58.7%,41.2%,10/19,2:31,17
+R32,2,(2)Daniil Medvedev[RUS] [yr|ev],d.,35,(32)Reilly Opelka[USA] [yr|ev],6-4 6-2 6-4,1.84,13.7%,52.1%,89.5%,60.0%,2/3,5.7%,68.2%,61.7%,39.3%,11/16,1:38,1
+R64,1,(1)Novak Djokovic[SRB] [yr|ev],d.,92,Pablo Cuevas[URU] [yr|ev],6-3 6-2 6-4,1.45,10.6%,68.1%,75.0%,56.7%,8/9,6.8%,63.5%,63.8%,40.7%,3/8,2:06,1
+R64,93,Ricardas Berankis[LTU] [yr|ev],d.,101,James Duckworth[AUS] [yr|ev],7-5 2-6 7-6(4) 6-0,1.30,7.2%,61.3%,75.0%,62.8%,5/8,14.0%,49.6%,73.4%,49.2%,12/17,2:39,50
+R64,83,Marco Cecchinato[ITA] [yr|ev],d.,22,(21)Alex De Minaur[AUS] [yr|ev],6-4 6-1 3-6 6-1,1.18,5.9%,63.0%,69.3%,50.0%,8/10,1.9%,57.1%,60.0%,48.9%,8/14,2:28,16
+R64,76,Lorenzo Musetti[ITA] [yr|ev],d.,57,Yoshihito Nishioka[JPN] [yr|ev],7-5 6-3 6-2,1.32,4.1%,74.2%,63.9%,60.0%,9/11,2.0%,63.3%,56.5%,41.7%,14/21,2:09,11
+R64,9,(9)Matteo Berrettini[ITA] [yr|ev],d.,94,Federico Coria[ARG] [yr|ev],6-3 6-3 6-2,1.69,6.7%,68.0%,82.4%,50.0%,2/3,2.1%,64.2%,57.4%,44.1%,6/12,1:58,6
+R64,91,Soon Woo Kwon[KOR] [yr|ev],d.,98,Andreas Seppi[ITA] [yr|ev],6-4 7-5 7-5,1.48,6.3%,63.2%,75.0%,68.6%,1/2,12.3%,55.8%,72.7%,42.6%,12/16,2:38,52
+R64,59,Dominik Koepfer[GER] [yr|ev],d.,33,(30)Taylor Fritz[USA] [yr|ev],6-3 6-2 3-6 6-4,1.10,4.9%,61.5%,65.3%,55.3%,5/9,7.8%,56.0%,60.0%,54.9%,10/17,2:35,49
+R64,8,(8)Roger Federer[SUI] [yr|ev],d.,47,Marin Cilic[CRO] [yr|ev],6-2 2-6 7-6(4) 6-2,1.22,13.7%,68.4%,75.0%,56.8%,5/8,10.0%,64.2%,75.3%,39.5%,11/16,2:35,1
+R64,3,(3)Rafael Nadal[ESP] [yr|ev],d.,53,Richard Gasquet[FRA] [yr|ev],6-0 7-5 6-2,1.62,3.9%,58.4%,84.4%,46.9%,3/4,2.2%,51.6%,70.2%,27.3%,9/16,2:14,1
+R64,45,Cameron Norrie[GBR] [yr|ev],d.,54,Lloyd Harris[RSA] [yr|ev],4-6 6-3 6-3 6-2,1.53,5.4%,63.4%,83.1%,61.8%,0/1,9.2%,70.4%,69.6%,44.8%,4/9,2:15,8
+R64,19,(18)Jannik Sinner[ITA] [yr|ev],d.,87,Gianluca Mager[ITA] [yr|ev],6-1 7-5 3-6 6-3,1.53,8.2%,60.8%,76.3%,71.1%,2/4,4.3%,59.8%,65.7%,53.2%,6/11,2:19,1
+R64,105,Mikael Ymer[SWE] [yr|ev],d.,15,(14)Gael Monfils[FRA] [yr|ev],6-0 2-6 6-4 6-3,1.22,0.0%,67.0%,69.0%,42.9%,4/8,4.5%,57.3%,60.3%,40.4%,3/10,2:24,50
+R64,10,(10)Diego Schwartzman[ARG] [yr|ev],d.,56,Aljaz Bedene[SLO] [yr|ev],6-4 6-2 6-4,1.52,0.0%,67.7%,69.2%,67.7%,8/9,9.5%,51.6%,61.2%,43.5%,5/10,2:21,8
+R64,132,Philipp Kohlschreiber[GER] [yr|ev],d.,26,(24)Aslan Karatsev[RUS] [yr|ev],6-3 7-6(4) 4-6 6-1,0.90,5.4%,64.3%,75.9%,60.9%,4/5,10.2%,58.2%,82.5%,61.0%,0/3,2:59,16
+R64,97,(Q)Carlos Alcaraz[ESP] [yr|ev],d.,31,(28)Nikoloz Basilashvili[GEO] [yr|ev],6-4 6-2 6-4,1.39,12.3%,67.9%,78.2%,50.0%,4/6,0.0%,56.0%,59.6%,54.1%,6/12,1:56,1
+R64,42,Jan Lennard Struff[GER] [yr|ev],d.,104,Facundo Bagnis[ARG] [yr|ev],7-5 7-6(1) 6-4,1.40,14.7%,50.0%,82.4%,62.7%,4/5,3.6%,66.1%,71.6%,42.1%,8/11,2:18,21
+R64,6,(6)Alexander Zverev[GER] [yr|ev],d.,182,(Q)Roman Safiullin[RUS] [yr|ev],7-6(4) 6-3 7-6(1),1.35,15.0%,66.0%,80.3%,52.9%,1/4,5.4%,74.1%,67.5%,41.4%,5/9,2:27,2
+R64,55,Laslo Djere[SRB] [yr|ev],d.,48,Miomir Kecmanovic[SRB] [yr|ev],4-6 4-6 6-3 6-2 6-3,1.26,8.5%,59.9%,74.1%,50.9%,6/11,0.6%,58.1%,58.8%,51.4%,12/20,3:31,27
+R64,49,Kei Nishikori[JPN] [yr|ev],d.,25,(23)Karen Khachanov[RUS] [yr|ev],4-6 6-2 2-6 6-4 6-4,1.13,0.0%,65.4%,67.6%,57.4%,8/12,3.1%,62.5%,60.0%,58.3%,14/19,3:59,4
+R64,150,(Q)Henri Laaksonen[SUI] [yr|ev],d.,11,(11)Roberto Bautista Agut[ESP] [yr|ev],6-3 2-6 6-3 6-2,1.20,8.9%,46.5%,74.5%,57.4%,6/9,3.7%,71.3%,61.0%,51.6%,9/15,2:21,84
+R64,16,(15)Casper Ruud[NOR] [yr|ev],d.,126,Kamil Majchrzak[POL] [yr|ev],6-3 6-2 6-4,1.43,5.7%,66.7%,81.0%,37.9%,6/8,1.2%,60.7%,60.8%,39.4%,4/10,1:53,2
+R64,46,Alejandro Davidovich Fokina[ESP] [yr|ev],d.,154,(Q)Botic Van De Zandschulp[NED] [yr|ev],6-4 6-4 5-7 2-6 6-4,1.05,1.9%,64.9%,67.0%,51.9%,11/17,3.0%,62.2%,65.7%,50.0%,13/19,3:42,21
+R64,29,(27)Fabio Fognini[ITA] [yr|ev],d.,44,Marton Fucsovics[HUN] [yr|ev],7-6(6) 6-1 6-2,1.30,2.2%,62.2%,67.9%,61.8%,4/6,4.6%,62.1%,63.0%,42.4%,5/11,2:16,9
+R64,51,Federico Delbonis[ARG] [yr|ev],d.,68,Pablo Andujar[ESP] [yr|ev],4-6 6-1 3-6 6-3 6-2,1.21,10.2%,73.0%,70.0%,37.8%,4/10,1.6%,64.8%,63.9%,33.3%,8/17,3:23,33
+R64,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],d.,103,Pedro Martinez[ESP] [yr|ev],6-3 6-4 6-3,1.31,9.2%,70.1%,63.9%,53.8%,11/15,0.0%,59.1%,55.9%,38.3%,10/18,2:27,3
+R64,34,(31)John Isner[USA] [yr|ev],d.,41,Filip Krajinovic[SRB] [yr|ev],7-6(6) 6-1 7-6(5),1.60,25.0%,63.0%,91.4%,58.8%,3/3,7.3%,67.0%,68.5%,63.9%,9/12,2:12,8
+R64,88,Steve Johnson[USA] [yr|ev],d.,80,Thiago Monteiro[BRA] [yr|ev],6-3 6-7(2) 7-6(2) 3-6 6-3,0.95,10.9%,58.3%,72.5%,45.2%,8/14,12.9%,67.7%,72.4%,44.0%,8/15,3:49,21
+R64,12,(12)Pablo Carreno Busta[ESP] [yr|ev],d.,177,(WC)Enzo Couacaud[FRA] [yr|ev],2-6 6-3 6-4 6-4,1.17,2.7%,70.0%,76.6%,51.5%,8/10,8.6%,54.3%,73.0%,52.8%,5/8,2:28,10
+R64,84,Marcos Giron[USA] [yr|ev],d.,61,Guido Pella[ARG] [yr|ev],7-6(2) 6-1 6-7(3) 6-4,1.30,7.2%,60.8%,77.6%,51.0%,5/9,4.0%,70.7%,59.4%,52.3%,12/20,3:15,37
+R64,23,(22)Cristian Garin[CHI] [yr|ev],d.,119,(Q)Mackenzie Mcdonald[USA] [yr|ev],4-6 4-6 7-6(7) 6-3 8-6,0.96,5.9%,66.7%,71.8%,48.4%,14/18,6.5%,70.2%,68.6%,58.0%,4/9,4:14,17
+R64,35,(32)Reilly Opelka[USA] [yr|ev],d.,72,Jaume Munar[ESP] [yr|ev],6-3 6-2 3-6 7-5,0.95,14.1%,66.4%,75.3%,46.5%,7/9,1.0%,57.1%,76.8%,54.8%,2/7,2:39,17
+R64,2,(2)Daniil Medvedev[RUS] [yr|ev],d.,52,Tommy Paul[USA] [yr|ev],3-6 6-1 6-4 6-3,1.42,4.5%,56.2%,80.0%,46.2%,2/6,3.4%,65.0%,57.9%,36.6%,7/15,2:18,1
+R128,1,(1)Novak Djokovic[SRB] [yr|ev],d.,66,Tennys Sandgren[USA] [yr|ev],6-2 6-4 6-2,1.90,5.5%,67.1%,85.7%,54.2%,6/6,5.3%,59.6%,53.6%,52.6%,6/11,1:58,1
+R128,92,Pablo Cuevas[URU] [yr|ev],d.,86,Lucas Pouille[FRA] [yr|ev],6-3 6-1 6-3,1.84,13.3%,70.7%,69.8%,77.3%,4/5,6.6%,37.4%,67.6%,36.8%,10/16,1:49,19
+R128,101,James Duckworth[AUS] [yr|ev],d.,82,Salvatore Caruso[ITA] [yr|ev],6-4 3-6 7-6(4) 6-2,1.02,9.3%,57.8%,78.5%,38.2%,21/25,5.1%,57.2%,65.8%,54.2%,10/15,3:29,46
+R128,93,Ricardas Berankis[LTU] [yr|ev],d.,32,(29)Ugo Humbert[FRA] [yr|ev],6-4 6-4 2-6 6-4,1.07,3.5%,58.9%,68.7%,50.0%,15/19,11.2%,53.6%,64.2%,51.7%,11/16,3:01,50
+R128,22,(21)Alex De Minaur[AUS] [yr|ev],d.,78,Stefano Travaglia[ITA] [yr|ev],6-2 6-4 7-6(4),1.16,9.6%,50.9%,67.2%,58.9%,14/16,8.3%,60.2%,61.5%,51.2%,2/7,2:28,6
+R128,83,Marco Cecchinato[ITA] [yr|ev],d.,115,Yasutaka Uchiyama[JPN] [yr|ev],3-6 6-1 6-2 6-4,1.69,11.8%,75.3%,79.7%,52.4%,0/2,3.4%,64.7%,52.0%,58.5%,9/15,2:18,16
+R128,57,Yoshihito Nishioka[JPN] [yr|ev],d.,77,Jo-Wilfried Tsonga[FRA] [yr|ev],6-4 6-2 3-6 7-6(5),1.19,1.6%,71.4%,73.3%,52.8%,6/8,14.2%,61.2%,73.2%,42.3%,8/12,2:52,24
+R128,76,Lorenzo Musetti[ITA] [yr|ev],d.,13,(13)David Goffin[BEL] [yr|ev],6-0 7-5 7-6(3),1.33,2.9%,71.4%,70.7%,50.0%,6/8,7.1%,56.1%,69.1%,32.6%,7/13,2:18,11
+R128,9,(9)Matteo Berrettini[ITA] [yr|ev],d.,113,(Q)Taro Daniel[JPN] [yr|ev],6-0 6-4 4-6 6-4,2.15,16.5%,69.4%,89.8%,61.5%,0/1,3.3%,66.9%,63.0%,52.5%,6/11,2:22,6
+R128,94,Federico Coria[ARG] [yr|ev],d.,62,Feliciano Lopez[ESP] [yr|ev],6-3 7-6(4) 6-2,1.54,6.3%,81.3%,83.1%,33.3%,0/1,10.6%,56.4%,69.8%,46.3%,5/10,1:58,49
+R128,91,Soon Woo Kwon[KOR] [yr|ev],d.,100,Kevin Anderson[RSA] [yr|ev],7-5 6-4 2-6 7-6(4),0.90,5.6%,53.1%,75.0%,55.2%,4/7,23.6%,61.4%,82.1%,49.0%,9/12,3:09,52
+R128,98,Andreas Seppi[ITA] [yr|ev],d.,21,(20)Felix Auger Aliassime[CAN] [yr|ev],6-3 7-6(8) 4-6 6-4,1.06,3.6%,54.3%,72.4%,59.4%,10/12,8.5%,67.4%,69.5%,54.3%,9/13,3:33,18
+R128,33,(30)Taylor Fritz[USA] [yr|ev],d.,114,Joao Sousa[POR] [yr|ev],6-4 6-2 6-4,1.87,9.7%,56.9%,82.9%,67.7%,1/2,1.2%,59.5%,66.0%,41.2%,5/10,1:41,4
+R128,59,Dominik Koepfer[GER] [yr|ev],d.,197,(WC)Mathias Bourgue[FRA] [yr|ev],6-3 6-3 6-4,1.30,3.0%,60.0%,71.7%,55.0%,9/10,1.1%,67.8%,62.3%,37.9%,7/12,2:04,49
+R128,47,Marin Cilic[CRO] [yr|ev],d.,118,(WC)Arthur Rinderknech[FRA] [yr|ev],7-6(6) 6-1 6-2,1.72,9.9%,65.4%,84.9%,50.0%,5/6,8.3%,59.2%,60.6%,42.9%,11/17,2:18,3
+R128,8,(8)Roger Federer[SUI] [yr|ev],d.,204,(Q)Denis Istomin[UZB] [yr|ev],6-2 6-4 6-3,2.18,12.3%,70.8%,80.4%,78.9%,0/0,3.4%,70.1%,59.0%,50.0%,8/13,1:33,1
+R128,3,(3)Rafael Nadal[ESP] [yr|ev],d.,63,Alexei Popyrin[AUS] [yr|ev],6-3 6-2 7-6(3),1.29,7.5%,63.4%,81.4%,55.9%,3/4,9.0%,57.3%,78.4%,44.7%,7/11,2:23,1
+R128,53,Richard Gasquet[FRA] [yr|ev],d.,141,(WC)Hugo Gaston[FRA] [yr|ev],6-1 6-4 6-2,2.14,7.7%,60.0%,76.9%,76.9%,0/1,2.3%,47.1%,58.5%,43.5%,11/17,1:39,7
+R128,45,Cameron Norrie[GBR] [yr|ev],d.,198,(Q)Bjorn Fratangelo[USA] [yr|ev],7-5 7-6(5) 6-2,1.07,7.6%,59.7%,76.1%,39.6%,9/12,8.2%,61.9%,61.7%,54.1%,6/12,2:31,8
+R128,54,Lloyd Harris[RSA] [yr|ev],d.,28,(26)Lorenzo Sonego[ITA] [yr|ev],7-5 6-4 6-4,1.39,6.7%,67.8%,75.4%,69.0%,6/7,5.2%,60.8%,66.1%,57.9%,8/12,2:18,31
+R128,19,(18)Jannik Sinner[ITA] [yr|ev],d.,85,Pierre Hugues Herbert[FRA] [yr|ev],6-1 4-6 6-7(4) 7-5 6-4,1.19,3.2%,61.7%,68.4%,59.3%,8/12,8.6%,52.3%,67.1%,48.6%,2/10,3:32,1
+R128,87,Gianluca Mager[ITA] [yr|ev],d.,134,(LL)Peter Gojowczyk[GER] [yr|ev],6-2 3-6 6-4 7-5,1.05,8.0%,62.8%,75.6%,43.1%,10/13,3.3%,57.5%,71.0%,49.0%,6/12,2:36,62
+R128,105,Mikael Ymer[SWE] [yr|ev],d.,95,Roberto Carballes Baena[ESP] [yr|ev],6-4 0-6 4-6 6-2 6-2,1.06,4.1%,74.1%,55.0%,42.1%,16/26,2.8%,63.3%,47.8%,50.0%,4/15,3:36,50
+R128,15,(14)Gael Monfils[FRA] [yr|ev],d.,38,Albert Ramos[ESP] [yr|ev],1-6 7-6(6) 6-4 6-4,0.96,8.9%,54.1%,75.3%,35.5%,8/13,0.8%,58.9%,56.6%,62.3%,4/9,3:01,6
+R128,10,(10)Diego Schwartzman[ARG] [yr|ev],d.,680,Yen Hsun Lu[TPE] [yr|ev],6-2 6-2 6-3,1.81,4.2%,57.7%,78.0%,56.7%,3/5,1.3%,53.3%,55.0%,31.4%,4/12,1:43,8
+R128,56,Aljaz Bedene[SLO] [yr|ev],d.,36,Adrian Mannarino[FRA] [yr|ev],7-5 3-6 7-5 6-2,1.29,12.7%,45.8%,88.9%,51.6%,1/3,5.2%,49.7%,72.4%,46.8%,10/15,3:29,43
+R128,132,Philipp Kohlschreiber[GER] [yr|ev],d.,99,Fernando Verdasco[ESP] [yr|ev],7-6(3) 6-2 2-6 6-4,1.34,8.9%,56.3%,73.0%,67.3%,13/16,4.9%,62.0%,65.9%,51.9%,13/17,2:52,16
+R128,26,(24)Aslan Karatsev[RUS] [yr|ev],d.,163,(Q)Jenson Brooksby[USA] [yr|ev],6-3 6-4 6-4,1.60,3.9%,59.7%,80.4%,64.5%,0/1,1.2%,60.7%,60.8%,54.5%,7/11,1:59,14
+R128,31,(28)Nikoloz Basilashvili[GEO] [yr|ev],d.,39,Dusan Lajovic[SRB] [yr|ev],6-4 6-3 0-6 6-2,1.07,2.2%,67.8%,57.4%,51.7%,2/8,5.4%,65.8%,56.2%,44.7%,4/12,2:06,16
+R128,97,(Q)Carlos Alcaraz[ESP] [yr|ev],d.,128,(Q)Bernabe Zapata Miralles[ESP] [yr|ev],6-3 2-6 6-1 7-6(4),1.12,1.5%,61.3%,59.5%,56.6%,6/12,2.5%,65.3%,59.7%,41.5%,7/15,3:08,1
+R128,104,Facundo Bagnis[ARG] [yr|ev],d.,116,(WC)Benjamin Bonzi[FRA] [yr|ev],7-5 6-3 6-4,1.53,5.2%,50.5%,79.6%,62.5%,6/7,7.1%,61.1%,59.4%,50.0%,8/12,2:32,55
+R128,42,Jan Lennard Struff[GER] [yr|ev],d.,7,(7)Andrey Rublev[RUS] [yr|ev],6-3 7-6(6) 4-6 3-6 6-4,0.95,13.8%,50.3%,79.1%,48.9%,9/13,8.2%,46.5%,77.0%,56.5%,12/15,3:46,21
+R128,6,(6)Alexander Zverev[GER] [yr|ev],d.,152,(Q)Oscar Otte[GER] [yr|ev],3-6 3-6 6-2 6-2 6-0,1.43,8.3%,57.4%,74.2%,58.7%,2/6,1.5%,66.2%,63.3%,34.8%,8/16,2:49,2
+R128,182,(Q)Roman Safiullin[RUS] [yr|ev],d.,137,(Q)Carlos Taberner[ESP] [yr|ev],7-6(4) 1-6 6-0 6-2,1.22,7.0%,64.3%,70.3%,56.1%,7/10,1.7%,66.9%,65.8%,41.0%,10/16,2:45,36
+R128,55,Laslo Djere[SRB] [yr|ev],d.,73,Corentin Moutet[FRA] [yr|ev],6-3 6-7(10) 7-6(2) 7-5,1.13,5.1%,56.7%,70.3%,48.1%,16/21,1.7%,64.4%,61.6%,45.2%,15/22,4:27,27
+R128,48,Miomir Kecmanovic[SRB] [yr|ev],d.,27,(25)Daniel Evans[GBR] [yr|ev],1-6 6-3 6-3 6-4,1.16,0.9%,62.8%,60.6%,50.0%,8/15,4.0%,64.4%,53.1%,43.4%,19/28,3:04,27
+R128,25,(23)Karen Khachanov[RUS] [yr|ev],d.,71,Jiri Vesely[CZE] [yr|ev],6-1 6-2 6-3,1.79,7.2%,63.8%,86.4%,48.0%,2/2,1.5%,68.7%,63.0%,23.8%,4/10,1:33,8
+R128,49,Kei Nishikori[JPN] [yr|ev],d.,159,(Q)Alessandro Giannessi[ITA] [yr|ev],6-4 6-7(4) 6-3 4-6 6-4,1.28,1.4%,62.2%,73.0%,53.7%,10/17,3.0%,59.2%,59.0%,52.2%,19/29,4:03,4
+R128,150,(Q)Henri Laaksonen[SUI] [yr|ev],d.,96,Yannick Hanfmann[GER] [yr|ev],6-1 6-3 4-6 6-2,1.49,10.6%,59.6%,82.1%,55.3%,1/2,1.8%,60.9%,64.2%,46.5%,7/13,2:13,84
+R128,11,(11)Roberto Bautista Agut[ESP] [yr|ev],d.,183,(Q)Mario Vilella Martinez[ESP] [yr|ev],6-4 6-4 6-2,2.10,2.9%,63.2%,81.4%,76.0%,3/4,7.2%,51.5%,72.0%,40.4%,5/10,1:58,9
+R128,16,(15)Casper Ruud[NOR] [yr|ev],d.,40,Benoit Paire[FRA] [yr|ev],5-7 6-2 6-1 7-6(4),1.19,2.2%,58.5%,65.8%,62.5%,4/7,5.6%,54.4%,72.1%,40.4%,8/14,3:00,2
+R128,126,Kamil Majchrzak[POL] [yr|ev],d.,452,(WC)Arthur Cazaux[FRA] [yr|ev],6-4 2-6 6-4 6-4,1.08,8.7%,55.1%,65.8%,56.5%,8/12,5.8%,56.4%,64.8%,50.0%,14/19,3:30,75
+R128,46,Alejandro Davidovich Fokina[ESP] [yr|ev],d.,106,Mikhail Kukushkin[KAZ] [yr|ev],6-4 6-4 6-3,1.44,10.7%,62.7%,74.5%,57.1%,0/2,5.0%,58.0%,62.1%,42.9%,9/15,1:57,21
+R128,154,(Q)Botic Van De Zandschulp[NED] [yr|ev],d.,20,(19)Hubert Hurkacz[POL] [yr|ev],6-7(5) 6-7(4) 6-2 6-2 6-4,1.19,3.1%,59.5%,73.2%,63.6%,6/8,7.1%,64.9%,70.0%,51.9%,7/14,3:41,22
+R128,29,(27)Fabio Fognini[ITA] [yr|ev],d.,122,(WC)Gregoire Barrere[FRA] [yr|ev],6-4 6-1 6-4,1.36,1.9%,59.2%,67.2%,57.1%,7/9,2.2%,57.8%,53.8%,44.7%,7/13,2:07,9
+R128,44,Marton Fucsovics[HUN] [yr|ev],d.,69,Gilles Simon[FRA] [yr|ev],6-4 6-1 7-6(5),1.25,4.0%,56.6%,66.1%,51.2%,6/10,0.0%,78.5%,49.5%,50.0%,8/16,3:13,31
+R128,51,Federico Delbonis[ARG] [yr|ev],d.,89,Radu Albot[MDA] [yr|ev],6-1 2-6 6-0 6-1,1.56,1.1%,57.6%,66.0%,53.8%,12/16,0.0%,54.9%,48.9%,27.0%,3/13,2:05,33
+R128,68,Pablo Andujar[ESP] [yr|ev],d.,4,(4)Dominic Thiem[AUT] [yr|ev],4-6 5-7 6-3 6-4 6-4,1.00,2.2%,62.0%,64.0%,48.6%,13/19,2.6%,62.8%,72.4%,34.5%,10/17,4:28,32
+R128,5,(5)Stefanos Tsitsipas[GRE] [yr|ev],d.,60,Jeremy Chardy[FRA] [yr|ev],7-6(6) 6-3 6-1,1.50,5.4%,64.1%,74.6%,60.6%,2/3,2.2%,67.8%,65.6%,31.0%,1/6,2:04,3
+R128,103,Pedro Martinez[ESP] [yr|ev],d.,50,Sebastian Korda[USA] [yr|ev],6-4 6-2 6-2,1.66,3.8%,68.8%,81.8%,52.0%,4/4,8.9%,58.4%,61.0%,45.2%,6/11,2:15,36
+R128,41,Filip Krajinovic[SRB] [yr|ev],d.,215,(Q)Maximilian Marterer[GER] [yr|ev],6-4 6-1 7-6(3),1.57,8.0%,68.2%,86.7%,42.9%,2/2,4.5%,67.9%,65.8%,38.9%,11/15,2:12,26
+R128,34,(31)John Isner[USA] [yr|ev],d.,67,Sam Querrey[USA] [yr|ev],7-6(2) 6-3 6-4,1.43,24.2%,70.3%,82.8%,63.0%,2/2,10.6%,57.6%,79.6%,50.0%,1/3,1:45,8
+R128,80,Thiago Monteiro[BRA] [yr|ev],d.,117,(LL)Francisco Cerundolo[ARG] [yr|ev],6-3 6-4 6-3,1.26,3.2%,71.3%,74.6%,44.4%,6/7,3.0%,59.0%,71.2%,36.6%,10/15,2:06,61
+R128,88,Steve Johnson[USA] [yr|ev],d.,74,Frances Tiafoe[USA] [yr|ev],6-7(5) 3-6 6-4 6-2 6-1,1.10,7.5%,54.8%,72.5%,51.5%,7/12,9.9%,57.0%,67.9%,47.5%,6/15,3:11,21
+R128,177,(WC)Enzo Couacaud[FRA] [yr|ev],d.,79,Egor Gerasimov[BLR] [yr|ev],7-6(3) 6-4 6-3,1.18,5.4%,52.7%,76.3%,50.9%,8/10,2.2%,65.6%,64.4%,45.2%,6/10,2:15,151
+R128,12,(12)Pablo Carreno Busta[ESP] [yr|ev],d.,81,Norbert Gombos[SVK] [yr|ev],6-3 6-4 6-3,1.62,9.2%,59.2%,82.2%,64.5%,1/1,11.9%,65.5%,72.7%,34.5%,4/8,1:43,10
+R128,84,Marcos Giron[USA] [yr|ev],d.,17,(16)Grigor Dimitrov[BUL] [yr|ev],2-6 4-6 7-5 3-0 RET,0.94,3.4%,61.9%,58.9%,48.9%,9/15,1.0%,60.8%,67.8%,42.1%,4/9,2:31,37
+R128,61,Guido Pella[ARG] [yr|ev],d.,107,(Q)Daniel Elahi Galan[COL] [yr|ev],6-3 7-6(4) 7-5,1.25,0.0%,62.9%,70.5%,44.4%,3/8,4.8%,53.6%,55.2%,46.6%,13/21,2:45,20
+R128,119,(Q)Mackenzie Mcdonald[USA] [yr|ev],d.,75,Emil Ruusuvuori[FIN] [yr|ev],4-6 6-3 7-6(4) 6-3,0.99,6.5%,66.2%,64.7%,48.1%,17/21,1.6%,62.7%,63.3%,53.2%,1/8,3:08,37
+R128,23,(22)Cristian Garin[CHI] [yr|ev],d.,102,Juan Ignacio Londero[ARG] [yr|ev],3-6 6-4 7-6(6) 6-2,1.07,5.4%,63.6%,64.6%,46.8%,7/13,1.7%,62.8%,59.2%,48.9%,7/15,3:09,17
+R128,35,(32)Reilly Opelka[USA] [yr|ev],d.,108,Andrej Martin[SVK] [yr|ev],6-3 6-2 6-4,1.42,11.8%,62.4%,73.6%,50.0%,2/5,1.2%,64.0%,58.2%,35.5%,4/11,1:52,17
+R128,72,Jaume Munar[ESP] [yr|ev],d.,64,Jordan Thompson[AUS] [yr|ev],6-7(6) 6-1 7-6(5) 6-4,1.08,2.5%,75.2%,68.6%,47.5%,8/10,4.5%,53.5%,70.2%,49.3%,18/23,4:23,52
+R128,52,Tommy Paul[USA] [yr|ev],d.,129,(WC)Christopher Oconnell[AUS] [yr|ev],6-2 6-4 4-6 4-6 10-8,1.04,4.7%,62.4%,76.4%,51.6%,14/18,3.9%,67.1%,70.6%,56.0%,2/8,3:33,9
+R128,2,(2)Daniil Medvedev[RUS] [yr|ev],d.,37,Alexander Bublik[KAZ] [yr|ev],6-3 6-3 7-5,1.45,7.8%,47.8%,79.1%,53.2%,6/9,8.0%,53.0%,66.0%,31.9%,8/15,1:54,1
