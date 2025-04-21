@@ -67,6 +67,30 @@ def save_rank_cache(rank_cache, filename='rank_cache.json'):
         json.dump(rank_cache, file)
     print("🗄️ Rank cache saved!")
 
+def extract_peakrank(driver, player_name):
+    # Prepare the player URL
+    formatted_name = player_name.replace(" ", "")
+    full_url = f"https://www.tennisabstract.com/cgi-bin/player.cgi?p={formatted_name}"
+
+    try:
+        driver.get(full_url)
+        time.sleep(4)  # Let the page load
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+
+        # Find the 'Peak rank' information
+        for td in soup.find_all("td"):
+            text = list(td.stripped_strings)
+            if text and text[0].startswith("Peak rank:"):
+                b = td.find("b")
+                if b:
+                    return b.text.strip()
+
+        print(f"❌ Peak rank not found for {player_name}")
+        return "N/A"
+    except Exception as e:
+        print(f"[ERROR] Failed to extract peak rank for {player_name}: {e}")
+        return "N/A"
 
 # Scrape a table from the tournament and save it to a CSV
 def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache):
@@ -97,29 +121,18 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache
                 winner_td = cells[2]
                 winner_link_tag = winner_td.find("a", href=lambda x: x and "player.cgi?p=" in x)
                 if winner_link_tag:
-                    player_url = winner_link_tag["href"]
-                    full_url = player_url if player_url.startswith("http") else "https://www.tennisabstract.com" + player_url
-
-                    try:
-                        # Check if the player's peak rank is in cache
-                        player_name = winner_link_tag.get_text(strip=True)
-                        if player_name in rank_cache:
-                            winner_peak_rank = rank_cache[player_name]
-                            print(f"🚀 Using cached peak rank for {player_name}")
-                        else:
-                            driver.get(full_url)
-                            time.sleep(4)
-                            player_soup = BeautifulSoup(driver.page_source, "html.parser")
-                            script_tag = player_soup.find("script", string=re.compile("var fullname ="))
-                            if script_tag:
-                                match = re.search(r"var peakrank = (\d+)", script_tag.string)
-                                winner_peak_rank = match.group(1) if match else "N/A"
-
-                            # Save the player's peak rank in the cache
-                            rank_cache[player_name] = winner_peak_rank
-
-                    except Exception as e:
-                        print(f"[ERROR] Failed to get peak rank for {full_url}: {e}")
+                    player_name = winner_link_tag.get_text(strip=True)
+                    
+                    # Use cached peak rank if available
+                    if player_name in rank_cache:
+                        winner_peak_rank = rank_cache[player_name]
+                        print(f"🚀 Using cached peak rank for {player_name}")
+                    else:
+                        # Extract peak rank directly using the new function
+                        winner_peak_rank = extract_peakrank(driver, player_name)
+                        
+                        # Save the player's peak rank in the cache
+                        rank_cache[player_name] = winner_peak_rank
 
             # Extract plain text for the row and append peak rank
             row_values = [cell.get_text(strip=True) for cell in cells]
@@ -145,15 +158,14 @@ def scrape_table_to_csv(driver, tournament_url, output_dir, table_id, rank_cache
 
     print(f"📁 CSV written to '{output_file}'")
 
-
 # Main function to drive the scraping
 def main():
     chromedriver_path = "C:\\chromedriver-win64\\chromedriver.exe"
     base_url = "https://www.tennisabstract.com/cgi-bin/tourney.cgi?t="
     base_tourney_names = ["US_Open"]
 
-    start_year = 2000
-    end_year = 2023
+    start_year = 2010
+    end_year = 2010
 
     table_ids = ["singles-results", "stat-summaries"]  # Add more table IDs here if needed
 
@@ -175,11 +187,10 @@ def main():
 
             time.sleep(4)
 
-        # Save the rank cache for the next run
-        save_rank_cache(rank_cache)
+            # Save the rank cache for the next run
+            save_rank_cache(rank_cache)
 
     driver.quit()
-
 
 if __name__ == "__main__":
     main()
