@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 from pathlib import Path
 
@@ -6,10 +7,27 @@ COLUMNS_TO_KEEP = [
     '2nd%', 'SPW', 'BPFaced', 'BPSvd%', 'RPW', 'BPEarned', 'BPConv%', 'TPW', 'DR'
 ]
 
+PERCENT_COLUMNS = ['Hld%', 'Brk%', 'Ace%', 'DF%', '1stIn', '1st%', '2nd%', 'SPW', 'BPSvd%', 'RPW', 'BPConv%', 'TPW']
+
 def collect_stat_files(root_dir: str, filename: str = "stat-summaries.csv") -> list:
     """Recursively collects all stat summary CSV file paths from a given root directory."""
     return list(Path(root_dir).rglob(filename))
 
+# Load peak ranks from rank_cache.json
+def load_peak_ranks(json_path="rank_cache.json") -> pd.DataFrame:
+    def safe_int(value):
+        try:
+            return int(value)
+        except (ValueError, TypeError):
+            return None  # Or set to -1 or 9999 if you prefer a placeholder
+
+    with open(json_path, "r") as f:
+        rank_data = json.load(f)
+
+    rank_df = pd.DataFrame(
+        [{"Player": name, "PeakRank": safe_int(rank)} for name, rank in rank_data.items()]
+    )
+    return rank_df
 
 def load_and_filter_stats(file_paths: list) -> pd.DataFrame:
     """Loads all relevant stat CSVs and keeps only the desired columns."""
@@ -18,10 +36,25 @@ def load_and_filter_stats(file_paths: list) -> pd.DataFrame:
         try:
             df = pd.read_csv(path)
             df = df[COLUMNS_TO_KEEP].copy()
+            # Drop any summary rows like "All Main Draw Players"
+            df = df[df['Player'] != 'All Main Draw Players']
             # Convert all columns (except Player) to numeric
             for col in df.columns:
-                if col != 'Player':
-                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+                if col == 'Player':
+                    continue
+                if col in PERCENT_COLUMNS:
+                    # First, remove '%' and any stray whitespace
+                    df[col] = df[col].astype(str).str.replace('%', '').str.strip()
+                    # Now convert to float
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                    # Then divide by 100 to convert to decimal
+                    df[col] = df[col] / 100
+                else:
+                    # For non-percent columns, just convert directly
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                
+                # Fill any NaNs with 0
+                df[col] = df[col].fillna(0)
             all_dfs.append(df)
         except Exception as e:
             print(f"Skipping file {path} due to error: {e}")
@@ -54,6 +87,11 @@ def main():
 
     print("🔄 Aggregating player stats...")
     aggregated_df = aggregate_player_stats(raw_df)
+
+    print("📈 Merging peak rank data...")
+    rank_df = load_peak_ranks("rank_cache.json")
+    aggregated_df = aggregated_df.merge(rank_df, on="Player", how="left")
+    aggregated_df["PeakRank"] = pd.to_numeric(aggregated_df["PeakRank"], errors="coerce")
 
     print("💾 Saving to output...")
     save_aggregated_stats(aggregated_df, output_csv)
