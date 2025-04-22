@@ -8,7 +8,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
 from sklearn.metrics import (
     accuracy_score, classification_report,
-    precision_score, recall_score, f1_score
+    precision_score, recall_score, f1_score,
+    confusion_matrix, ConfusionMatrixDisplay
 )
 
 def load_and_clean_data(filepath):
@@ -53,8 +54,8 @@ def classify_elite(df, elite_cutoff=10):
     print(f"F1 Score: {np.mean(f1_scores_list):.4f}")
 
 def categorize_and_classify(df):
-    bins = [0, 10, 30, 50, 75, df['PeakRank'].max() + 1]
-    labels = ['Elite', 'Semi-Elite', 'Top 50', 'Top 100', 'Other']
+    bins = [0, 15, 40, 75, df['PeakRank'].max() + 1]
+    labels = ['Top 15', 'Top 40', 'Top 75', 'Other']
     df['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
 
     df = df.dropna(subset=['PeakRankCategory', 'M'])
@@ -63,6 +64,7 @@ def categorize_and_classify(df):
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     accuracy_scores = []
+    final_y_test = final_y_pred = None
 
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
@@ -73,10 +75,21 @@ def categorize_and_classify(df):
         y_pred = model.predict(X_test)
 
         accuracy_scores.append(accuracy_score(y_test, y_pred))
+        final_y_test, final_y_pred = y_test, y_pred
 
     print("\n--- Multiclass Classification (Rank Categories) ---")
     print(f"Multiclass Accuracy: {np.mean(accuracy_scores):.4f}")
-    print("Classification Report:\n", classification_report(y_test, y_pred))
+    print("Classification Report:\n", classification_report(final_y_test, final_y_pred))
+
+    # Confusion Matrix
+    cm = confusion_matrix(final_y_test, final_y_pred, labels=labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+
+    plt.figure(figsize=(8, 6))
+    disp.plot(cmap='Blues', xticks_rotation=45, values_format='d')
+    plt.title("Confusion Matrix - Multiclass Rank Prediction")
+    plt.tight_layout()
+    plt.show()
 
 def run_pca(df, n_components=2):
     X = df.drop(columns=['Player', 'PeakRank', 'PeakRankCategory'], errors='ignore')
@@ -88,8 +101,11 @@ def run_pca(df, n_components=2):
 
     df_pca = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(n_components)])
     df_pca['PeakRank'] = df['PeakRank'].values
-    df_pca['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=[0, 3, 20, 50, df['PeakRank'].max()+1],
-                                        labels=['1-3', '4-20', '21-50', '51+'], right=False)
+    bins = [0, 15, 40, 75, df['PeakRank'].max() + 1]
+    labels = ['Top 15', 'Top 40', 'Top 75', 'Other']
+
+    # Use the same bins for PeakRankCategory in PCA
+    df_pca['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
 
     print("\n--- PCA Analysis ---")
     print(f"Explained variance: {pca.explained_variance_ratio_}")
