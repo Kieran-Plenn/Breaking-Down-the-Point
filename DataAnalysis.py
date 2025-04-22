@@ -6,6 +6,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
 from sklearn.metrics import (
     accuracy_score, classification_report,
     precision_score, recall_score, f1_score,
@@ -152,6 +153,75 @@ def run_pca(df, n_components=2):
     plt.ylabel('Feature')
     plt.tight_layout()
     plt.show()
+    
+def run_clustering_and_pca(df, n_clusters=4, n_components=2):
+    # Selecting numeric columns for clustering and PCA
+    X = df.drop(columns=['Player', 'PeakRank', 'PeakRankCategory'], errors='ignore')
+    X = X.select_dtypes(include=[np.number])
+    X_scaled = StandardScaler().fit_transform(X)
+
+    # K-Means Clustering
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    clusters = kmeans.fit_predict(X_scaled)
+    
+    # PCA for dimensionality reduction
+    pca = PCA(n_components=n_components)
+    X_pca = pca.fit_transform(X_scaled)
+
+    # Create a new DataFrame with PCA and cluster labels
+    df_pca = pd.DataFrame(X_pca, columns=[f'PC{i+1}' for i in range(n_components)])
+    df_pca['Cluster'] = clusters
+    df_pca['PeakRank'] = df['PeakRank'].values
+    bins = [0, 15, 40, 75, df['PeakRank'].max() + 1]
+    labels = ['Top 15', 'Top 40', 'Top 75', 'Other']
+    df_pca['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
+
+    # Plot the clusters on the PCA scatter plot
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df_pca, x='PC1', y='PC2', hue='Cluster', palette='Set1', alpha=0.7, s=100)
+    plt.title(f'PCA with K-Means Clustering (n_clusters={n_clusters})')
+    plt.xlabel('Principal Component 1')
+    plt.ylabel('Principal Component 2')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # Optional: Plot the cluster centers in PCA space
+    cluster_centers_pca = pca.transform(kmeans.cluster_centers_)
+    plt.scatter(cluster_centers_pca[:, 0], cluster_centers_pca[:, 1], s=300, c='red', marker='X', label="Cluster Centers")
+    plt.legend()
+    plt.show()
+    
+def analyze_clusters(df, n_clusters=4):
+    # Create a new column for the cluster assignments
+    X = df.drop(columns=['Player', 'PeakRank', 'PeakRankCategory'], errors='ignore')
+    X = X.select_dtypes(include=[np.number])  # Select only numeric columns
+
+    # Handle missing values: You can choose to fill NaNs or drop them
+    X.fillna(X.mean(), inplace=True)  # Filling NaNs with the mean of the respective column
+    
+    # Standardize the data
+    X_scaled = StandardScaler().fit_transform(X)
+
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    clusters = kmeans.fit_predict(X_scaled)
+    
+    df['Cluster'] = clusters  # Add cluster labels to the DataFrame
+
+    # Ensure that only numeric columns are selected for calculating the means
+    numeric_columns = df.select_dtypes(include=['number']).columns
+    
+    # Calculate and display the average stats per cluster
+    cluster_means = df[numeric_columns].groupby(df['Cluster']).mean()  # Calculate mean for each cluster
+    print("\n--- Average Stats per Cluster ---")
+    print(cluster_means)
+
+    # Display the most important stats for each cluster
+    for i in range(n_clusters):
+        print(f"\nCluster {i} Stats:")
+        cluster_stats = cluster_means.iloc[i]
+        top_stats = cluster_stats.sort_values(ascending=False).head(5)
+        print(top_stats)
 
 def main():
     filepath = 'aggregated_us_open_stats.csv'
@@ -165,6 +235,12 @@ def main():
 
     print("\n[3] PCA Visualization")
     run_pca(df)
+    
+    print("\n[4] PCA with Clustering")
+    run_clustering_and_pca(df)
+    
+    print("\n[5] Cluster Analysis (Average Stats per Cluster)")
+    analyze_clusters(df)
 
 if __name__ == "__main__":
     main()
