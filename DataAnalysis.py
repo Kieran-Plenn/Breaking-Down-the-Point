@@ -34,6 +34,7 @@ def classify_elite(df, elite_cutoff=10):
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     accuracy_scores, precision_scores, recall_scores, f1_scores_list = [], [], [], []
 
+    feature_importances = np.zeros(X.shape[1])
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
@@ -41,6 +42,8 @@ def classify_elite(df, elite_cutoff=10):
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
+
+        feature_importances += model.feature_importances_
 
         accuracy_scores.append(accuracy_score(y_test, y_pred))
         precision_scores.append(precision_score(y_test, y_pred))
@@ -52,6 +55,20 @@ def classify_elite(df, elite_cutoff=10):
     print(f"Precision: {np.mean(precision_scores):.4f}")
     print(f"Recall: {np.mean(recall_scores):.4f}")
     print(f"F1 Score: {np.mean(f1_scores_list):.4f}")
+
+    feature_cols = df.drop(columns=['Player', 'PeakRank']).columns
+    avg_importance = feature_importances / 5
+    fi_df = pd.DataFrame({'Feature': feature_cols, 'Importance': avg_importance})
+
+    # Drop unwanted features from the importance plot
+    fi_df = fi_df[~fi_df['Feature'].isin(['weighted_peakrank', 'M'])]
+    fi_df = fi_df.sort_values(by='Importance', ascending=False)
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(data=fi_df.head(15), x='Importance', y='Feature', palette='viridis')
+    plt.title('Top 15 Feature Importances (Elite Classification)')
+    plt.tight_layout()
+    plt.show()
 
 def categorize_and_classify(df):
     bins = [0, 15, 40, 75, df['PeakRank'].max() + 1]
@@ -81,7 +98,6 @@ def categorize_and_classify(df):
     print(f"Multiclass Accuracy: {np.mean(accuracy_scores):.4f}")
     print("Classification Report:\n", classification_report(final_y_test, final_y_pred))
 
-    # Confusion Matrix
     cm = confusion_matrix(final_y_test, final_y_pred, labels=labels)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
 
@@ -103,14 +119,13 @@ def run_pca(df, n_components=2):
     df_pca['PeakRank'] = df['PeakRank'].values
     bins = [0, 15, 40, 75, df['PeakRank'].max() + 1]
     labels = ['Top 15', 'Top 40', 'Top 75', 'Other']
-
-    # Use the same bins for PeakRankCategory in PCA
     df_pca['PeakRankCategory'] = pd.cut(df['PeakRank'], bins=bins, labels=labels, right=False)
 
     print("\n--- PCA Analysis ---")
     print(f"Explained variance: {pca.explained_variance_ratio_}")
     print(f"Cumulative explained variance: {np.cumsum(pca.explained_variance_ratio_)}")
 
+    # PCA scatterplot
     plt.figure(figsize=(10, 6))
     sns.scatterplot(data=df_pca, x='PC1', y='PC2', hue='PeakRankCategory', palette='Set2', alpha=0.7)
     plt.title('PCA of Player Stats (colored by Rank Category)')
@@ -120,15 +135,35 @@ def run_pca(df, n_components=2):
     plt.tight_layout()
     plt.show()
 
+    # Loadings
     loadings = pd.DataFrame(pca.components_.T, index=X.columns, columns=[f'PC{i+1}' for i in range(n_components)])
+
     print("\nTop contributing features to PC1:")
     print(loadings['PC1'].sort_values(ascending=False).head(10))
+
+    # Barplot of PC1 loadings (excluding 'weighted_peakrank' and 'M')
+    filtered_loadings = loadings.drop(index=[col for col in ['weighted_peakrank', 'M'] if col in loadings.index])
+    sorted_pc1 = filtered_loadings['PC1'].sort_values(ascending=False)
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=sorted_pc1.values[:15], y=sorted_pc1.index[:15], palette='coolwarm')
+    plt.title('Top 15 Feature Contributions to PC1 (excluding weighted_peakrank and M)')
+    plt.xlabel('Loading Value')
+    plt.ylabel('Feature')
+    plt.tight_layout()
+    plt.show()
 
 def main():
     filepath = 'aggregated_us_open_stats.csv'
     df = load_and_clean_data(filepath)
+
+    print("\n[1] Binary Elite Classification")
     classify_elite(df)
+
+    print("\n[2] Multiclass Rank Category Classification")
     categorize_and_classify(df)
+
+    print("\n[3] PCA Visualization")
     run_pca(df)
 
 if __name__ == "__main__":
